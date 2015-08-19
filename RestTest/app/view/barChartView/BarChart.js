@@ -7,10 +7,14 @@ Ext.define("RestTest.view.barChartView.BarChart", {
 		'Ext.chart.series.Bar',
 		'Ext.chart.series.Line',
 		'Ext.chart.axis.Numeric',
-		'Ext.chart.axis.Category'
+		'Ext.chart.axis.Category',
+		'RestTest.view.barChartView.barChartViewController',
+		'RestTest.view.restView.RestViewController'
 
 	],
 
+	controller: 'restview',
+	reference: 'chart',
 	
 	title: 'cartesian',
 	xtype: "jeppes-chart",
@@ -38,6 +42,9 @@ Ext.define("RestTest.view.barChartView.BarChart", {
 	},
 	bbar: {
 		xtype: 'button',
-		text: 'Remove'
+		text: 'Remove',
+		listeners: {
+			click: 'removeButtonClick'
+		}
 	}
 });
