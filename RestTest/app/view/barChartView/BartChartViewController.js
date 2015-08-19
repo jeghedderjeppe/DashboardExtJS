@@ -6,17 +6,5 @@ Ext.define('RestTest.view.barChartView.barChartViewController', {
 		var chart = this.lookupReference('chart');
 		console.log(chart);
 		chart.destroy();
-
-
-
-
-
-//hello world
-
-
-
-
-
-		
 	}
 });
