@@ -2,21 +2,13 @@ Ext.define('RestTest.view.barChartView.barChartViewController', {
 	extend: 'Ext.app.ViewController', 
 	alias: 'controller.barChart',
 	
-	removeButtonClick: function () {
-		var chart = this.lookupReference('chart');
-		console.log(chart);
+	removeButtonClick: function (button) {
+		var chart = button.up();
 		chart.destroy();
+		console.log(this);
 
-
-
-
-
-//hello world
-
-
-
-
-
-		
+		/*var chart = this.lookupReference('chartt');
+		console.log(chart);
+		chart.destroy();*/
 	}
 });
