@@ -44,19 +44,24 @@ Ext.define("RestTest.view.restView.RestView", {
 		},
 		items: [{
 			xtype: 'combo',
+			forceSelection: true,
+			emptyText:'Select data',
 			bodyPadding: 2,
 			store: showComboStore,
 			displayField: 'show',
 			valueField: 'abbr',
 			reference: 'whatToShowCombo',
-			width: 250
+			width: 200
 		},{
 			xtype: 'combo',
+			forceSelection: true,
+			emptyText:'Select graph',
 			bodyPadding: 2,
 			store: showHow,
 			displayField: 'show',
 			valueField: 'abbr',
-			reference: 'howToShowCombo'
+			reference: 'howToShowCombo',
+			width: 200
 		}, {
 			xtype: 'button',
 			text: 'Show stats',
