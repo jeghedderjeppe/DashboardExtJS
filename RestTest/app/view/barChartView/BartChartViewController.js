@@ -5,13 +5,5 @@ Ext.define('RestTest.view.barChartView.barChartViewController', {
 	removeButtonClick: function (button) {
 		var chart = button.up();
 		chart.destroy();
-<<<<<<< HEAD
-		console.log(this);
-
-		/*var chart = this.lookupReference('chartt');
-		console.log(chart);
-		chart.destroy();*/
-=======
->>>>>>> origin/master
 	}
 });
