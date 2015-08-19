@@ -3,9 +3,7 @@ Ext.define('RestTest.view.restView.RestViewController', {
 	alias: 'controller.restview',
 
 	onGetButtonClick: function () {
-		var outputContainer = this.lookupReference('outputContainer');
 		var outputChart = this.lookupReference('outputChart');
-		var input = this.lookupReference('inputtextField').getValue();
 		outputContainer.update(input);
 
 		Ext.Ajax.request({
@@ -145,7 +143,7 @@ Ext.define('RestTest.view.restView.RestViewController', {
                 chart.bindStore(datastore); 
             },
             failure: function(response) {
-                outputContainer.update('failure');
+                Ext.Msg.alert('Fail! Here\'s why: ' + response.responseText);
             }
 		});
 
