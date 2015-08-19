@@ -8,12 +8,11 @@ Ext.define("RestTest.view.barChartView.BarChart", {
 		'Ext.chart.series.Line',
 		'Ext.chart.axis.Numeric',
 		'Ext.chart.axis.Category',
-		'RestTest.view.barChartView.barChartViewController',
-		'RestTest.view.restView.RestViewController'
+		'RestTest.view.barChartView.barChartViewController'
 
 	],
 
-	controller: 'restview',
+	controller: 'barChart',
 	reference: 'chart',
 	
 	title: 'cartesian',
