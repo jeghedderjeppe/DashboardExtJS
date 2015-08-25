@@ -1,5 +1,5 @@
 $app-name:  dynamic( 'RestTest' );
-$image-search-path: 'C:/Users/mhm/Documents/GitHub/DashboardExtJS/RestTest/build/development/RestTest/classic/resources';
+$image-search-path: 'C:/Users/jb/Documents/GitHub/DashboardExtJS/RestTest/build/development/RestTest/classic/resources';
 $theme-name:  dynamic( 'theme-triton' );
 $include-ext-abstractcomponent: dynamic(true);;
 $include-ext-abstractcontainer: dynamic(true);;

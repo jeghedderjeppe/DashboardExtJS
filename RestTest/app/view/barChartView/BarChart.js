@@ -34,7 +34,7 @@ Ext.define("RestTest.view.barChartView.BarChart", {
 	}],
 	series:{
 		type: 'line',
-		smooth: true,
+		smooth: false,
 		marker: {radius:5},
 		xField: 'Key',
 		yField: 'Value'

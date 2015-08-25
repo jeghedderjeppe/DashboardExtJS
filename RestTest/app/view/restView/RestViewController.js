@@ -108,7 +108,8 @@ Ext.define('RestTest.view.restView.RestViewController', {
 				xAxisName = 'Error';
 				
 		}
-		var chart = Ext.create('RestTest.view.barChartView.BarChart', {
+		if (true) {
+			var chart = Ext.create('RestTest.view.barChartView.BarChart', {
 			series: {
 				type: howToShowValue
 			},
@@ -122,11 +123,12 @@ Ext.define('RestTest.view.restView.RestViewController', {
 				type: 'numeric',
 				position: 'left'
 			}]
-		});
+			});
+		};
 
 
 		Ext.Ajax.request({
-			url: 'http://localhost:49879/SendStatistics.svc/rest/getrequest/' + whatToShowValue +'/10', //getpageviewsbybrowser
+			url: 'http://localhost:49879/SendStatistics.svc/rest/getrequest/' + whatToShowValue +'/maxResult=10', //getpageviewsbybrowser
 			method:'GET',
 			disableCaching: true,
 			headers: {accept : 'application/json; charset=utf-8'},

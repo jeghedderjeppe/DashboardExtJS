@@ -16,7 +16,8 @@ var showHow = Ext.create('Ext.data.Store',{
 	fields: ['show', 'abbr'],
 	data: [
 		{'show': 'Line chart', 'abbr' : 'line'},
-		{'show': 'Bar chart', 'abbr' : 'bar'}
+		{'show': 'Bar chart', 'abbr' : 'bar'},
+		{'show': 'Pie chart', 'abbr' : 'pie'}
 	]
 });
 
