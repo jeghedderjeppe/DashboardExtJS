@@ -1046,6 +1046,7 @@ $include-resttest-view-main-maincontroller: dynamic(true);;
 $include-resttest-view-main-mainmodel: dynamic(true);;
 $include-resttest-view-restview-restview: dynamic(true);;
 $include-resttest-view-restview-restviewcontroller: dynamic(true);;
+$include-resttest-view-testviews-multipledatasetschart: dynamic(true);;
 
 
 /* ======================== ETC ======================== */
