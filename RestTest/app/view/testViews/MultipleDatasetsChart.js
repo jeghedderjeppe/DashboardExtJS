@@ -31,12 +31,12 @@ Ext.define('RestTest.view.testViews.MultipleDatasetsChart', {
 	store: store,
 	
 	axes: [{
-		title: "Assets",
+		title: "Numbers",
 		type: 'category',
 		position: 'bottom'
 	},
 	{
-		title: "Visninger",
+		title: "random data",
 		type: 'numeric',
 		position: 'left',
 		fields: ['data1', 'data2']
@@ -47,11 +47,11 @@ Ext.define('RestTest.view.testViews.MultipleDatasetsChart', {
 		marker: {radius:5},
 		xField: 'Key',
 		yField: 'data1'
-	},{
+	}/*,{
 		type: 'line',
 		smooth: false,
 		marker: {radius:5},
 		xField: 'Key',
 		yField: 'data2'
-	}]
+	}*/]
 });

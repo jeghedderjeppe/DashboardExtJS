@@ -2,6 +2,9 @@ Ext.define('RestTest.view.restView.RestViewController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.restview',
 
+    requires: [
+    	'RestTest.view.barChartView.BarChart'
+    ],
     onGetButtonClick: function() {
         var outputChart = this.lookupReference('outputChart');
         outputContainer.update(input);
@@ -75,7 +78,8 @@ Ext.define('RestTest.view.restView.RestViewController', {
 
         var whatToShowValue = whatToShowCombo.getValue();
         var howToShowValue = howToShowCombo.getValue();
-
+        var videoToShowStats = this.lookupReference('videosCombo').getValue();
+        console.log(videoToShowStats);
         var xAxisName, yAxisName;
 
         switch (whatToShowValue) {
@@ -107,6 +111,10 @@ Ext.define('RestTest.view.restView.RestViewController', {
                 xAxisName = 'Assettype';
                 yAxisName = 'Antal assets';
                 break;
+            case 'GetHitsPerMilestone':
+                xAxisName = 'Milestone';
+                yAxisName = 'Hits';
+                break;
             default:
                 yAxisName = 'Error';
                 xAxisName = 'Error';
@@ -129,9 +137,12 @@ Ext.define('RestTest.view.restView.RestViewController', {
             });
         };
 
+    	var parameters = 'parameters=maxResult=9';
+    	if (videoToShowStats) { parameters += '|itemId=' + videoToShowStats};
 
         Ext.Ajax.request({
-            url: 'http://localhost:49879/SendStatistics.svc/rest/getrequest?method=' + whatToShowValue + '&parameters=maxResult=9', //getpageviewsbybrowser
+
+            url: 'http://localhost:49879/SendStatistics.svc/rest/getrequest?method=' + whatToShowValue + '&' + parameters, //getpageviewsbybrowser
             method: 'GET',
             disableCaching: true,
             headers: {
@@ -200,7 +211,7 @@ Ext.define('RestTest.view.restView.RestViewController', {
 
                         var chart = Ext.create('RestTest.view.barChartView.BarChart', {
                             
-
+                        	store: store,
                             series: [{
                                 type: 'line',
                                 xField: 'Key',
@@ -220,8 +231,8 @@ Ext.define('RestTest.view.restView.RestViewController', {
                                 position: 'left'
                             }]
                         });
-                        chart.bindStore(store);
-                        panel.add(chart);
+/*                        chart.bindStore(store);
+*/                        panel.add(chart);
                     },
                     failure: function(response) {
                         Ext.Msg.alert('Fail! Here\'s why: ' + response.responseText);
