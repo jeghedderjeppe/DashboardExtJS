@@ -1,57 +1,47 @@
-var store = Ext.create('Ext.data.Store',{
-	data: [
-	{'key': 'first', 'data1': 1, 'data2': 4 },
-	{'key': 'second', 'data1': 4, 'data2': 6 },
-	{'key': 'third', 'data1': 5, 'data2': 14 },
-	{'key': 'fourth', 'data1': 6, 'data2': 11 },
-	{'key': 'fifth', 'data1': 8, 'data2': 2 },
-	{'key': 'sixth', 'data1': 11, 'data2': 16 }
-	]
-
-});
-
 Ext.define('RestTest.view.testViews.MultipleDatasetsChart', {
 	extend: 'Ext.chart.CartesianChart',
 
 	xtype: 'jeppes-multi-chart',
 
-	requires: [
-		'Ext.chart.axis.Category',
-		'Ext.chart.axis.Numeric',
-		'Ext.chart.series.Line'
-	],
-
-	title: 'Jeppes Multiple store chart',
-
+	title: 'carshishian',
 	width: 800,
 	height: 400,
 	padding: 10,
 	animate:true,
+	insetPadding: 10,
 
-	store: store,
-	
-	axes: [{
-		title: "Numbers",
-		type: 'category',
-		position: 'bottom'
-	},
-	{
-		title: "random data",
-		type: 'numeric',
-		position: 'left',
-		fields: ['data1', 'data2']
-	}],
-	series:[{
-		type: 'line',
-		smooth: false,
-		marker: {radius:5},
-		xField: 'Key',
-		yField: 'data1'
-	}/*,{
-		type: 'line',
-		smooth: false,
-		marker: {radius:5},
-		xField: 'Key',
-		yField: 'data2'
-	}*/]
+	store: {
+	        fields: ['pet', 'households', 'total'],
+	        data: [
+	            {pet: 'Cats', households: 38, total: 93},
+	            {pet: 'Dogs', households: 45, total: 79},
+	            {pet: 'Fish', households: 13, total: 171}
+	        ]
+	    },
+	    axes: [{
+    	title: 'lol stuff',
+        type: 'numeric',
+        position: 'left',
+        fields: ['households', 'total']
+    }, {
+    	title: 'lol 2',
+        type: 'category',
+        position: 'bottom',
+        fields: ['pet']
+    }],
+    series: [{
+        type: 'line',
+        xField: 'pet',
+        yField: ['households', 'total'],
+        listeners: {
+            itemmousemove: function (series, item, event) {
+                console.log('itemmousemove', item.category, item.field);
+            }
+        }
+    },{
+        type: 'line',
+        xField: 'pet',
+        yField: 'total',
+        marker: true
+    }]
 });

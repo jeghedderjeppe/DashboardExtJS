@@ -8,7 +8,9 @@ var showComboStore = Ext.create('Ext.data.Store',{
 		{'show': 'View sessions by category', 'abbr': 'GetSessionsByDeviceCategory'},
 		{'show': 'View Assets by most favorized', 'abbr': 'GetMostFavorizedDummy'},
 		{'show': 'View Asset types by amount', 'abbr': 'GetAssetTypeAllocationDummy'},
-		{'show': 'View hits per milestone', 'abbr': 'GetHitsPerMilestone'}
+		{'show': 'View hits per milestone', 'abbr': 'GetHitsPerMilestone'},
+		{'show': 'Dropouts per milestone', 'abbr': 'GetDropoutsPerMilestone'},
+		{'show': 'Percentage finished for all videos', 'abbr': 'GetPercentageFinishedForAllVideos'}
 	]
 });
 
@@ -24,7 +26,8 @@ var showHow = Ext.create('Ext.data.Store',{
 var videos = Ext.create('Ext.data.Store',{
 	fields: ['show', 'abbr'],
 	data: [
-		{'show': 'Train tracks', 'abbr' : '123'}
+		{'show': 'Train tracks', 'abbr' : 123},
+		{'show': 'Ferry of awsome', 'abbr': 456}
 	]
 });
 
@@ -86,7 +89,7 @@ Ext.define("RestTest.view.restView.RestView", {
 			listeners:{
 				click: 'onShowButtonClick'
 			}
-		},, {
+		}, {
 			xtype: 'button',
 			text: 'Show testChart',
 			listeners:{

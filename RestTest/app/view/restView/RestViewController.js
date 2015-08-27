@@ -3,7 +3,7 @@ Ext.define('RestTest.view.restView.RestViewController', {
     alias: 'controller.restview',
 
     requires: [
-    	'RestTest.view.barChartView.BarChart'
+        'RestTest.view.barChartView.BarChart'
     ],
     onGetButtonClick: function() {
         var outputChart = this.lookupReference('outputChart');
@@ -79,66 +79,88 @@ Ext.define('RestTest.view.restView.RestViewController', {
         var whatToShowValue = whatToShowCombo.getValue();
         var howToShowValue = howToShowCombo.getValue();
         var videoToShowStats = this.lookupReference('videosCombo').getValue();
-        console.log(videoToShowStats);
-        var xAxisName, yAxisName;
+        var xAxisName, yAxisName, title;
 
         switch (whatToShowValue) {
             case 'GetMostPopularAssets':
                 yAxisName = 'Antal visninger';
                 xAxisName = 'Assets';
+                title = 'GetMostPopularAssets';
                 break;
             case 'GetSessionsByBrowser':
                 yAxisName = 'Sessioner';
                 xAxisName = 'Browsere';
+                title = 'GetSessionsByBrowser';
                 break;
             case 'GetSessionsByOS':
                 yAxisName = 'Sessioner';
                 xAxisName = 'OS';
+                title = 'GetSessionsByOS';
                 break;
             case 'GetSessionsByCountry':
                 yAxisName = 'Sessioner';
                 xAxisName = 'Land';
+                title = 'GetSessionsByCountry';
                 break;
             case 'GetSessionsByDeviceCategory':
                 yAxisName = 'Sessioner';
                 xAxisName = 'Enhedskategori';
+                title = 'GetSessionsByDeviceCategory';
                 break;
             case 'GetMostFavorizedDummy':
                 xAxisName = 'Titel';
                 yAxisName = 'Antal gange favoriseret';
+                title = 'GetMostFavorizedDummy';
                 break;
             case 'GetAssetTypeAllocationDummy':
                 xAxisName = 'Assettype';
                 yAxisName = 'Antal assets';
+                title = 'GetAssetTypeAllocationDummy';
                 break;
             case 'GetHitsPerMilestone':
                 xAxisName = 'Milestone';
                 yAxisName = 'Hits';
+                title = 'GetHitsPerMilestone';
+                break;
+            case 'GetDropoutsPerMilestone':
+                xAxisName = 'Milestone';
+                yAxisName = 'Hits';
+                title = 'GetDropoutsPerMilestone';
+                break;
+            case 'GetPercentageFinishedForAllVideos':
+                xAxisName = 'Video';
+                yAxisName = 'Percent';
+                title = 'GetPercentageFinishedForAllVideos';
                 break;
             default:
                 yAxisName = 'Error';
                 xAxisName = 'Error';
+                title = 'Error';
+
+
 
         }
-        if (true) {
-            var chart = Ext.create('RestTest.view.barChartView.BarChart', {
-                series: {
-                    type: howToShowValue
-                },
-                axes: [{
-                    title: xAxisName,
-                    type: 'category',
-                    position: 'bottom'
-                }, {
-                    title: yAxisName,
-                    type: 'numeric',
-                    position: 'left'
-                }]
-            });
-        };
+        var chart = Ext.create('RestTest.view.barChartView.BarChart', {
+            title: title,
+            series: {
+                type: howToShowValue
+            },
+            axes: [{
+                title: xAxisName,
+                type: 'category',
+                position: 'bottom'
+            }, {
+                title: yAxisName,
+                type: 'numeric',
+                position: 'left',
+                grid: true
+            }]
+        });
 
-    	var parameters = 'parameters=maxResult=9';
-    	if (videoToShowStats) { parameters += '|itemId=' + videoToShowStats};
+        var parameters = 'parameters=maxResult=25';
+        if (videoToShowStats) {
+            parameters += '|itemId=' + videoToShowStats
+        };
 
         Ext.Ajax.request({
 
@@ -170,8 +192,8 @@ Ext.define('RestTest.view.restView.RestViewController', {
 
     showTestChart: function() {
         var panel = this.lookupReference('outputPanel');
-        var testchart = Ext.create('RestTest.view.testViews.MultipleDatasetsChart');
-
+        /*var testchart = Ext.create('RestTest.view.testViews.MultipleDatasetsChart');
+        panel.add(testchart);*/
         var mostviewedAssetJson;
         var mostFavorizedAssetJson;
 
@@ -180,7 +202,7 @@ Ext.define('RestTest.view.restView.RestViewController', {
         Ext.Ajax.request({
             url: 'http://localhost:49879/SendStatistics.svc/rest/getrequest?method=GetMostPopularAssets&parameters=maxResult=9', //getpageviewsbybrowser
             method: 'GET',
-            disableCaching: true,
+            disableCaching: false,
             headers: {
                 accept: 'application/json; charset=utf-8'
             },
@@ -208,31 +230,72 @@ Ext.define('RestTest.view.restView.RestViewController', {
                         console.log(mostFavorizedAssetJson);
                         var store = getStoreFromTwoJsonObject(mostviewedAssetJson, mostFavorizedAssetJson);
                         console.log(store);
+                        var testStore = {
+					        fields: ['pet', 'households', 'total'],
+					        data: [
+					            {pet: 'Cats', households: 38, total: 93},
+					            {pet: 'Dogs', households: 45, total: 79},
+					            {pet: 'Fish', households: 13, total: 171}
+					        ]
+					    };
 
-                        var chart = Ext.create('RestTest.view.barChartView.BarChart', {
-                            
-                        	store: store,
+	                        var chart = Ext.create('RestTest.view.testViews.MultipleDatasetsChart', {
+	                        	store: store,
+		                       	height: 400,
+		                       	width: 800,
+		                       	axes: [{
+							    	title: 'lol stuff',
+							        type: 'numeric',
+							        position: 'left',
+							        fields: ['value1', 'value2']
+							    }, {
+							    	title: 'lol 2',
+							        type: 'category',
+							        position: 'bottom',
+							        fields: ['key']
+							    }],
+							    series: [{
+							        type: 'line',
+							        xField: 'key',
+							        yField: ['value1', 'value2'],
+							        listeners: {
+							            itemmousemove: function (series, item, event) {
+							                console.log('itemmousemove', item.category, item.field);
+							            }
+							        }
+							    },{
+							        type: 'line',
+							        xField: 'key',
+							        yField: 'value2',
+							        marker: true
+							    }]
+	                        }); 
+                        
+                           /* width: 800,
+                            height: 400,
+                            store: store,
+                            axes: [{
+                                title: 'test x axis',
+                                type: 'category',
+                                position: 'bottom',
+                                fields: ['key']
+                            }, {
+                                title: 'test y axis',
+                                type: 'numeric',
+                                position: 'left',
+                                fields: ['value1', 'value2']
+                            }],
                             series: [{
                                 type: 'line',
                                 xField: 'Key',
                                 yField: 'Value1'
-                            },{
-                            	type: 'line',
+                            }, {
+                                type: 'line',
                                 xField: 'Key',
                                 yField: 'Value2'
-                            }],
-                            axes: [{
-                                title: 'test x axis',
-                                type: 'category',
-                                position: 'bottom'
-                            }, {
-                                title: 'test y axis',
-                                type: 'numeric',
-                                position: 'left'
                             }]
-                        });
-/*                        chart.bindStore(store);
-*/                        panel.add(chart);
+                        });*/
+                        panel.add(chart);
                     },
                     failure: function(response) {
                         Ext.Msg.alert('Fail! Here\'s why: ' + response.responseText);
@@ -243,14 +306,7 @@ Ext.define('RestTest.view.restView.RestViewController', {
                 Ext.Msg.alert('Fail! Here\'s why: ' + response.responseText);
             }
         });
-
-
-
-
     }
-
-
-
 });
 
 
@@ -270,5 +326,10 @@ var getStoreFromTwoJsonObject = function(json1, json2) {
     	console.log(json1[jsonObj]);
     	//JsonRoot += "{key:" + jsonObj[key] + ", value1: " + json1[i][value] + ", value2: " + json2[i][value] + "}";
     }*/
-    return Ext.JSON.decode(JsonRoot);
+    var store = Ext.create('Ext.data.Store',{
+    	fields: ['key', 'value1', 'value2'],
+
+    	data: Ext.JSON.decode(JsonRoot)
+    });
+    return store;
 };

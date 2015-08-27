@@ -13,28 +13,29 @@ Ext.define("RestTest.view.barChartView.BarChart", {
 	],
 
 	controller: 'barChart',
-	reference: 'chart',
-	
 	title: 'cartesian',
 	xtype: "jeppes-chart",
 	width: 800,
 	height: 400,
 	padding: 10,
 	animate:true,
+	insetPadding: 10,
 
-	axes: [{
+	/*axes: [{
 		title: "Assets",
 		type: 'category',
-		position: 'bottom'
+		position: 'bottom',
+		grid: true
 	},
 	{
 		title: "Visninger",
 		type: 'numeric',
-		position: 'left'
-	}],
+		position: 'left',
+		grid: true
+	}],*/
 	series:{
 		type: 'line',
-		smooth: false,
+		smooth: true,
 		marker: {radius:5},
 		xField: 'Key',
 		yField: 'Value'
