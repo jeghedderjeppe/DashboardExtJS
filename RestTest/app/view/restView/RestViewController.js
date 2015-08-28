@@ -234,47 +234,57 @@ Ext.define('RestTest.view.restView.RestViewController', {
                         var responseText = response.responseText;
                         //outputContainer.update(responseText);
                         mostFavorizedAssetJson = Ext.JSON.decode(responseText);
-                        var firstYValue = "Views",
-                            secondYvalue = "Favorizations";
-                        var store = getStoreFromTwoJsonObject(mostviewedAssetJson, mostFavorizedAssetJson, firstYValue, secondYvalue);
+                        var store = getStoreFromTwoJsonObject(mostviewedAssetJson, mostFavorizedAssetJson, "Views", "Favorizations");
 
                         var chart = Ext.create('RestTest.view.testViews.MultipleDatasetsChart', {
                         	store: store,
 	                       	height: 400,
 	                       	width: 800,
 	                       	axes: [{
-						    	title: firstYValue,
+						    	title: 'y axis 1',
 						        type: 'numeric',
 						        position: 'left',
                                 grid: true,
-						        fields: [firstYValue]
+						        fields: ['value1']
 						    },{
-                                title: secondYvalue,
+                                title: 'y axis 2',
                                 type: 'numeric',
                                 position: 'right',
-                                fields: [secondYvalue]
+                                fields: ['value2']
                             }, {
-						    	title: 'lol 2',
+						    	title: 'x axis',
 						        type: 'category',
 						        position: 'bottom',
 						        fields: ['key']
 						    }],
 						    series: [{
-						        type: 'line',
+						        type: 'bar',
 						        xField: 'key',
-						        yField: [firstYValue],
-						        listeners: {
-						            itemmousemove: function (series, item, event) {
-						                console.log('itemmousemove', item.category, item.field);
-						            }
-						        },
-                                marker: true
+						        yField: 'value2',
+						        style: {
+                                     fill: "#C92020"
+                                }
 						    },{
-						        type: 'line',
-						        xField: 'key',
-						        yField: secondYvalue,
-						        marker: true
-						    }],
+                                type: 'line',
+                                xField: 'key',
+                                yField: ['value1'],
+                                markerConfig: {
+                                    type: 'cross',
+                                    size: 4,
+                                    radius: 4,
+                                    'stroke-width': 100
+                                },
+                                style: {
+                                    stroke: '#798EE0',
+                                     width: 100
+                                },
+                                marker: true,
+                                listeners: {
+                                    itemmousemove: function (series, item, event) {
+                                        console.log('itemmousemove', item.category, item.field);
+                                    }
+                                }
+                            }],
                             legend: {
                                 docked: 'bottom'
                             }
@@ -319,26 +329,112 @@ Ext.define('RestTest.view.restView.RestViewController', {
 });
 
 
-var getStoreFromTwoJsonObject = function(json1, json2, firstYValue, secondYvalue) {
+var getStoreFromTwoJsonObject = function(json1, json2, yKey1, yKey2) {
     var JsonRoot = "[";
     for (i = 0; i < json1.length; i++) {
-        if (!(i == json1.length - 1)) {
-            JsonRoot += "{'key':" + json1[i].Key + "," + firstYValue + ":" + json1[i].Value + "," + secondYvalue + ":" + json2[i].Value + "},";
-        } else {
-            JsonRoot += "{'key':" + json1[i].Key + "," + firstYValue + ":" + json1[i].Value + "," + secondYvalue + ":" + json2[i].Value + "}";
+        for (j = 0; j < json2.length; j++) {
+            if (json1[i].Key == json2[j].Key) {
+                console.log(json1[i].Key + " " + json2[j].Key)
+                JsonRoot += "{'key':" + json1[i].Key + "," + "value1" + ":" + json1[i].Value + "," + "value2" + ":" + json2[j].Value + "},";
+            };
         }
-
     };
+    JsonRoot = JsonRoot.substring(0, JsonRoot.length - 1);
     JsonRoot += "]";
-
+    //console.log(Ext.JSON.decode(JsonRoot));
     /*for(var jsonObj in json1){
     	console.log(json1[jsonObj]);
     	//JsonRoot += "{key:" + jsonObj[key] + ", value1: " + json1[i][value] + ", value2: " + json2[i][value] + "}";
     }*/
+    console.log(JsonRoot);
     var store = Ext.create('Ext.data.Store',{
-    	fields: ['key', firstYValue, secondYvalue],
+    	fields: ['key', 'value1', 'value2'],
 
     	data: Ext.JSON.decode(JsonRoot)
     });
+
     return store;
 };
+
+
+/*var getStoreFromTwoJsonObject = function(json1, json2, firstYKey, secondYKey) {
+
+     var jsonObject = "[";
+     for (i = 0; i < json1.length; i++) {
+         jsonObject += jeppesJsonObj(json1[i].Key, json1[i].Value, json2, firstYKey, secondYKey);
+
+         if (i != json1.length - 1) {
+             jsonObject += ",";
+         }
+
+     };
+     jsonObject += "]"
+
+
+
+
+ 
+    var store = Ext.create('Ext.data.Store', {
+        fields: ['Key', firstYKey, secondYKey],
+
+        data: Ext.JSON.decode(jsonObject)
+        });
+    return store;
+
+};
+
+function jeppesJsonObj (keyfromJson1, valueFromJson1, json2, firstYKey, secondYKey) {
+    for (var i = 0; i < json2.length; i++) {
+        if (json2[i].key === keyfromJson1) {
+            return "{'key':" + keyfromJson1 + "," + firstYKey + ":" + valueFromJson1 + "," + secondYKey + ":" + json2[i].Value + "}";
+        };
+    };
+}*/
+
+/*function jsonObjectStuff (firstDictKey, firstDictValue, firstYKey, secondYKey) {
+    var xKey = firstDictKey;
+    var xValue = firstDictKey;
+
+    var firstYKey = firstYKey;
+    var firstYValye = firstDictValue;
+
+    var secondYKey = secondYKey;
+    var secondYvalue = 0;
+
+    function getObject () {
+        return "{" + xKey + ":" + xValue + "," + firstYKey + ":" + firstYValue + "," + secondYKey + ":" + secondYvalue + "}";
+    }
+}*/
+
+/* var jsonObject = "[";
+        for (i = 0; i < json1.length; i++) {
+            var lol = jsonObjectStuff("Key", json1[i].Key, firstYKey, secondYKey);
+            for (var j = 0; j < json2.length; j++) {
+                if (json2[j].Key == json1[i].Key) {
+                    lol.secondYvalue = json2[j].Key
+                }
+            };
+            jsonObject += lol.getValue();
+            if (i != json1.length - 1) {
+                jsonObject += ",";
+            }
+
+        }
+        jsonObject += "]";*/
+
+
+         /*  var JsonRoot = "[";
+    for (i = 0; i < json1.length; i++) {
+        if (!(i == json1.length - 1)) {
+            JsonRoot += "{'key':" + json1[i].Key + "," + firstYKey + ":" + json1[i].Value + "," + secondYKey + ":" + json2[i].Value + "},";
+        } else {
+             JsonRoot += "{'key':" + json1[i].Key + "," + firstYKey + ":" + json1[i].Value + "," + secondYKey + ":" + json2[i].Value + "}";
+        }
+
+    };*/
+    // JsonRoot += "]";
+
+    /*for(var jsonObj in json1){
+        console.log(json1[jsonObj]);
+        //JsonRoot += "{key:" + jsonObj[key] + ", value1: " + json1[i][value] + ", value2: " + json2[i][value] + "}";
+    }*/

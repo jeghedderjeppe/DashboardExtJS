@@ -109,10 +109,10 @@ Ext.define("RestTest.view.restView.RestView", {
 					width: '100%'
 				}
 			}
-		},
+		}/*,
 		items:[{
 			xtype: 'jeppes-multi-chart'
-		}]
+		}]*/
 		
 	}]
 });
