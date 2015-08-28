@@ -81,6 +81,9 @@ Ext.define('RestTest.view.restView.RestViewController', {
         var videoToShowStats = this.lookupReference('videosCombo').getValue();
         var xAxisName, yAxisName, title;
 
+        var parameters = 'parameters=maxResult=25';
+        var label = function(v) { return v };
+
         switch (whatToShowValue) {
             case 'GetMostPopularAssets':
                 yAxisName = 'Antal visninger';
@@ -121,16 +124,25 @@ Ext.define('RestTest.view.restView.RestViewController', {
                 xAxisName = 'Milestone';
                 yAxisName = 'Hits';
                 title = 'GetHitsPerMilestone';
+                parameters += '|itemId=' + videoToShowStats;
                 break;
             case 'GetDropoutsPerMilestone':
                 xAxisName = 'Milestone';
                 yAxisName = 'Hits';
                 title = 'GetDropoutsPerMilestone';
+                parameters += '|itemId=' + videoToShowStats;
                 break;
             case 'GetPercentageFinishedForAllVideos':
                 xAxisName = 'Video';
                 yAxisName = 'Percent';
                 title = 'GetPercentageFinishedForAllVideos';
+                break;
+            case 'GetDropoutsPercentForAllVideos':
+                xAxisName = 'Video';
+                yAxisName = '';
+                label = function(v) { return v + '%'; };
+                parameters += '|itemId=' + videoToShowStats;
+                title = 'GetDropoutsPercentForAllVideos';
                 break;
             default:
                 yAxisName = 'Error';
@@ -148,7 +160,8 @@ Ext.define('RestTest.view.restView.RestViewController', {
             axes: [{
                 title: xAxisName,
                 type: 'category',
-                position: 'bottom'
+                position: 'bottom',
+                label: { renderer: label }
             }, {
                 title: yAxisName,
                 type: 'numeric',
@@ -157,13 +170,8 @@ Ext.define('RestTest.view.restView.RestViewController', {
             }]
         });
 
-        var parameters = 'parameters=maxResult=25';
-        if (videoToShowStats) {
-            parameters += '|itemId=' + videoToShowStats
-        };
-
+        console.log(parameters);
         Ext.Ajax.request({
-
             url: 'http://localhost:49879/SendStatistics.svc/rest/getrequest?method=' + whatToShowValue + '&' + parameters, //getpageviewsbybrowser
             method: 'GET',
             disableCaching: true,
@@ -212,7 +220,6 @@ Ext.define('RestTest.view.restView.RestViewController', {
                 var responseText = response.responseText;
                 //outputContainer.update(responseText);
                 var mostviewedAssetJson = Ext.JSON.decode(responseText);
-                console.log(mostviewedAssetJson);
 
                 Ext.Ajax.request({
                     url: 'http://localhost:49879/SendStatistics.svc/rest/getrequest?method=GetMostFavorizedDummy&parameters=maxResult=9',
@@ -227,49 +234,51 @@ Ext.define('RestTest.view.restView.RestViewController', {
                         var responseText = response.responseText;
                         //outputContainer.update(responseText);
                         mostFavorizedAssetJson = Ext.JSON.decode(responseText);
-                        console.log(mostFavorizedAssetJson);
-                        var store = getStoreFromTwoJsonObject(mostviewedAssetJson, mostFavorizedAssetJson);
-                        console.log(store);
-                        var testStore = {
-					        fields: ['pet', 'households', 'total'],
-					        data: [
-					            {pet: 'Cats', households: 38, total: 93},
-					            {pet: 'Dogs', households: 45, total: 79},
-					            {pet: 'Fish', households: 13, total: 171}
-					        ]
-					    };
+                        var firstYValue = "Views",
+                            secondYvalue = "Favorizations";
+                        var store = getStoreFromTwoJsonObject(mostviewedAssetJson, mostFavorizedAssetJson, firstYValue, secondYvalue);
 
-	                        var chart = Ext.create('RestTest.view.testViews.MultipleDatasetsChart', {
-	                        	store: store,
-		                       	height: 400,
-		                       	width: 800,
-		                       	axes: [{
-							    	title: 'lol stuff',
-							        type: 'numeric',
-							        position: 'left',
-							        fields: ['value1', 'value2']
-							    }, {
-							    	title: 'lol 2',
-							        type: 'category',
-							        position: 'bottom',
-							        fields: ['key']
-							    }],
-							    series: [{
-							        type: 'line',
-							        xField: 'key',
-							        yField: ['value1', 'value2'],
-							        listeners: {
-							            itemmousemove: function (series, item, event) {
-							                console.log('itemmousemove', item.category, item.field);
-							            }
-							        }
-							    },{
-							        type: 'line',
-							        xField: 'key',
-							        yField: 'value2',
-							        marker: true
-							    }]
-	                        }); 
+                        var chart = Ext.create('RestTest.view.testViews.MultipleDatasetsChart', {
+                        	store: store,
+	                       	height: 400,
+	                       	width: 800,
+	                       	axes: [{
+						    	title: firstYValue,
+						        type: 'numeric',
+						        position: 'left',
+                                grid: true,
+						        fields: [firstYValue]
+						    },{
+                                title: secondYvalue,
+                                type: 'numeric',
+                                position: 'right',
+                                fields: [secondYvalue]
+                            }, {
+						    	title: 'lol 2',
+						        type: 'category',
+						        position: 'bottom',
+						        fields: ['key']
+						    }],
+						    series: [{
+						        type: 'line',
+						        xField: 'key',
+						        yField: [firstYValue],
+						        listeners: {
+						            itemmousemove: function (series, item, event) {
+						                console.log('itemmousemove', item.category, item.field);
+						            }
+						        },
+                                marker: true
+						    },{
+						        type: 'line',
+						        xField: 'key',
+						        yField: secondYvalue,
+						        marker: true
+						    }],
+                            legend: {
+                                docked: 'bottom'
+                            }
+                        }); 
                         
                            /* width: 800,
                             height: 400,
@@ -310,13 +319,13 @@ Ext.define('RestTest.view.restView.RestViewController', {
 });
 
 
-var getStoreFromTwoJsonObject = function(json1, json2) {
+var getStoreFromTwoJsonObject = function(json1, json2, firstYValue, secondYvalue) {
     var JsonRoot = "[";
     for (i = 0; i < json1.length; i++) {
         if (!(i == json1.length - 1)) {
-            JsonRoot += "{'key':" + json1[i].Key + ", 'value1': " + json1[i].Value + ", 'value2': " + json2[i].Value + "},";
+            JsonRoot += "{'key':" + json1[i].Key + "," + firstYValue + ":" + json1[i].Value + "," + secondYvalue + ":" + json2[i].Value + "},";
         } else {
-            JsonRoot += "{'key':" + json1[i].Key + ", 'value1': " + json1[i].Value + ", 'value2': " + json2[i].Value + "}";
+            JsonRoot += "{'key':" + json1[i].Key + "," + firstYValue + ":" + json1[i].Value + "," + secondYvalue + ":" + json2[i].Value + "}";
         }
 
     };
@@ -327,7 +336,7 @@ var getStoreFromTwoJsonObject = function(json1, json2) {
     	//JsonRoot += "{key:" + jsonObj[key] + ", value1: " + json1[i][value] + ", value2: " + json2[i][value] + "}";
     }*/
     var store = Ext.create('Ext.data.Store',{
-    	fields: ['key', 'value1', 'value2'],
+    	fields: ['key', firstYValue, secondYvalue],
 
     	data: Ext.JSON.decode(JsonRoot)
     });

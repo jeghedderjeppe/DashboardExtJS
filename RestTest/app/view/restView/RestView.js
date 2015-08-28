@@ -10,7 +10,8 @@ var showComboStore = Ext.create('Ext.data.Store',{
 		{'show': 'View Asset types by amount', 'abbr': 'GetAssetTypeAllocationDummy'},
 		{'show': 'View hits per milestone', 'abbr': 'GetHitsPerMilestone'},
 		{'show': 'Dropouts per milestone', 'abbr': 'GetDropoutsPerMilestone'},
-		{'show': 'Percentage finished for all videos', 'abbr': 'GetPercentageFinishedForAllVideos'}
+		{'show': 'Percentage finished for all videos', 'abbr': 'GetPercentageFinishedForAllVideos'},
+		{'show': 'Average percent watched', 'abbr': 'GetDropoutsPercentForAllVideos'}
 	]
 });
 
