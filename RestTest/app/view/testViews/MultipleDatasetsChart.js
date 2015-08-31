@@ -3,7 +3,7 @@ Ext.define('RestTest.view.testViews.MultipleDatasetsChart', {
 
 	xtype: 'jeppes-multi-chart',
 
-	title: 'carshishian',
+	title: 'Multi Chart test',
 	width: 800,
 	height: 400,
 	padding: 10,
