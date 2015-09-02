@@ -144,6 +144,11 @@ Ext.define('RestTest.view.restView.RestViewController', {
                 parameters += '|itemId=' + videoToShowStats;
                 title = 'GetDropoutsPercentForAllVideos';
                 break;
+             case 'testJobSystemConnector':
+                xAxisName = 'Job chain ID';
+                yAxisName = 'Seconds spent';
+                title = 'TestJobSystemConnector';
+                break;
             default:
                 yAxisName = 'Error';
                 xAxisName = 'Error';

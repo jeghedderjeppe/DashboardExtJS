@@ -11,7 +11,8 @@ var showComboStore = Ext.create('Ext.data.Store',{
 		{'show': 'View hits per milestone', 'abbr': 'GetHitsPerMilestone'},
 		{'show': 'Dropouts per milestone', 'abbr': 'GetDropoutsPerMilestone'},
 		{'show': 'Percentage finished for all videos', 'abbr': 'GetPercentageFinishedForAllVideos'},
-		{'show': 'Average percent watched', 'abbr': 'GetDropoutsPercentForAllVideos'}
+		{'show': 'Average percent watched', 'abbr': 'GetDropoutsPercentForAllVideos'},
+		{'show': 'Time per job', 'abbr': 'testJobSystemConnector'}
 	]
 });
 
