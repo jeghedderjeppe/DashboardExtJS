@@ -12,7 +12,12 @@ var showComboStore = Ext.create('Ext.data.Store',{
 		{'show': 'Dropouts per milestone', 'abbr': 'GetDropoutsPerMilestone'},
 		{'show': 'Percentage finished for all videos', 'abbr': 'GetPercentageFinishedForAllVideos'},
 		{'show': 'Average percent watched', 'abbr': 'GetDropoutsPercentForAllVideos'},
-		{'show': 'Time per job', 'abbr': 'testJobSystemConnector'}
+		{'show': 'Time per job', 'abbr': 'testJobSystemConnector'},
+		{'show': 'GetJobChainsByLongestCompletionTime', 'abbr': 'GetJobChainsByLongestCompletionTime'},
+		{'show': 'GetFailedJobChains', 'abbr': 'GetFailedJobChains'},
+		{'show': 'GetTimeSpentPerJob', 'abbr': 'GetTimeSpentPerJob'},
+		{'show': 'Failed Job Allocation', 'abbr': 'GetFailedJobTypeAllocation'}
+
 	]
 });
 

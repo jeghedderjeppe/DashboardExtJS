@@ -144,17 +144,31 @@ Ext.define('RestTest.view.restView.RestViewController', {
                 parameters += '|itemId=' + videoToShowStats;
                 title = 'GetDropoutsPercentForAllVideos';
                 break;
-             case 'testJobSystemConnector':
+             case 'GetJobChainsByLongestCompletionTime':
                 xAxisName = 'Job chain ID';
                 yAxisName = 'Seconds spent';
-                title = 'TestJobSystemConnector';
+                title = 'GetJobChainsByLongestCompletionTime';
+                break;
+            case 'GetFailedJobChains':
+                xAxisName = 'Job chain ID';
+                yAxisName = 'Seconds spent';
+                title = 'GetFailedJobChains';
+                break;
+             case 'GetTimeSpentPerJob':
+                xAxisName = 'JobID';
+                yAxisName = 'Seconds spent';
+                title = 'GetTimeSpentPerJob';
+                parameters += '|jobChainId=' + 42665;
+                break;
+            case 'GetFailedJobTypeAllocation':
+                xAxisName = 'JobID';
+                yAxisName = 'Times failed';
+                title = 'GetFailedJobTypeAllocation';
                 break;
             default:
                 yAxisName = 'Error';
                 xAxisName = 'Error';
                 title = 'Error';
-
-
 
         }
         var chart = Ext.create('RestTest.view.barChartView.BarChart', {
