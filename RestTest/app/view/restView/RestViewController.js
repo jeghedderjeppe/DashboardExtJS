@@ -165,10 +165,21 @@ Ext.define('RestTest.view.restView.RestViewController', {
                 yAxisName = 'Times failed';
                 title = 'GetFailedJobTypeAllocation';
                 break;
+            case 'GetAverageJobTimePerBatchServer':
+                xAxisName = 'Batch server';
+                yAxisName = 'Avg. Job time';
+                title = 'GetAverageJobTimePerBatchServer';
+                break;
+            case 'GetAmountStartedForAllVideos':
+                xAxisName = 'Video ID';
+                yAxisName = 'Hits';
+                title = 'GetAmountStartedForAllVideos';
+                break;
             default:
                 yAxisName = 'Error';
                 xAxisName = 'Error';
                 title = 'Error';
+
 
         }
         var chart = Ext.create('RestTest.view.barChartView.BarChart', {
@@ -226,7 +237,7 @@ Ext.define('RestTest.view.restView.RestViewController', {
 
 
 
-        Ext.Ajax.request({
+        /*Ext.Ajax.request({
             url: 'http://localhost:49879/SendStatistics.svc/rest/getrequest?method=GetMostPopularAssets&parameters=maxResult=9', //getpageviewsbybrowser
             method: 'GET',
             disableCaching: false,
@@ -254,7 +265,7 @@ Ext.define('RestTest.view.restView.RestViewController', {
                         //outputContainer.update(responseText);
                         mostFavorizedAssetJson = Ext.JSON.decode(responseText);
                         var store = getStoreFromTwoJsonObject(mostviewedAssetJson, mostFavorizedAssetJson, "Views", "Favorizations");
-
+                        console.log(store);
                         var chart = Ext.create('RestTest.view.testViews.MultipleDatasetsChart', {
                         	store: store,
 	                       	height: 400,
@@ -309,30 +320,30 @@ Ext.define('RestTest.view.restView.RestViewController', {
                             }
                         }); 
                         
-                           /* width: 800,
-                            height: 400,
-                            store: store,
-                            axes: [{
-                                title: 'test x axis',
-                                type: 'category',
-                                position: 'bottom',
-                                fields: ['key']
-                            }, {
-                                title: 'test y axis',
-                                type: 'numeric',
-                                position: 'left',
-                                fields: ['value1', 'value2']
-                            }],
-                            series: [{
-                                type: 'line',
-                                xField: 'Key',
-                                yField: 'Value1'
-                            }, {
-                                type: 'line',
-                                xField: 'Key',
-                                yField: 'Value2'
-                            }]
-                        });*/
+                        //     width: 800,
+                        //     height: 400,
+                        //     store: store,
+                        //     axes: [{
+                        //         title: 'test x axis',
+                        //         type: 'category',
+                        //         position: 'bottom',
+                        //         fields: ['key']
+                        //     }, {
+                        //         title: 'test y axis',
+                        //         type: 'numeric',
+                        //         position: 'left',
+                        //         fields: ['value1', 'value2']
+                        //     }],
+                        //     series: [{
+                        //         type: 'line',
+                        //         xField: 'Key',
+                        //         yField: 'Value1'
+                        //     }, {
+                        //         type: 'line',
+                        //         xField: 'Key',
+                        //         yField: 'Value2'
+                        //     }]
+                        // });
                         panel.add(chart);
                     },
                     failure: function(response) {
@@ -343,7 +354,84 @@ Ext.define('RestTest.view.restView.RestViewController', {
             failure: function(response) {
                 Ext.Msg.alert('Fail! Here\'s why: ' + response.responseText);
             }
-        });
+        });*/
+        Ext.Ajax.request({
+                    url: 'http://localhost:49879/SendStatistics.svc/rest/GetRequest?method=GetMostPopularAssetVsVsFavorized&parameters=maxResult=100|jobChainId=42665',
+                    method: 'GET',
+                    disableCaching: true,
+                    headers: {
+                        accept: 'application/json; charset=utf-8'
+                    },
+                    useDefaultXhrHeader: false,
+
+                    success: function(response) {
+                        var responseText = response.responseText;
+                        //outputContainer.update(responseText);
+                        mostFavorizedAssetJson = Ext.JSON.decode(responseText);
+                        var store = Ext.create('Ext.data.Store',{
+                                fields: ['key', 'value1', 'value2'],
+                                data: Ext.JSON.decode(responseText)
+                            });//getStoreFromTwoJsonObject(mostviewedAssetJson, mostFavorizedAssetJson, "Views", "Favorizations");
+                        console.log(store);
+                        var chart = Ext.create('RestTest.view.testViews.MultipleDatasetsChart', {
+                            store: store,
+                            height: 400,
+                            width: 800,
+                            axes: [{
+                                title: 'y axis 1',
+                                type: 'numeric',
+                                position: 'left',
+                                grid: true,
+                                fields: ['value1']
+                            },{
+                                title: 'y axis 2',
+                                type: 'numeric',
+                                position: 'right',
+                                fields: ['value2']
+                            }, {
+                                title: 'x axis',
+                                type: 'category',
+                                position: 'bottom',
+                                fields: ['key']
+                            }],
+                            series: [{
+                                type: 'bar',
+                                xField: 'key',
+                                yField: 'value2',
+                                style: {
+                                     fill: "#C92020"
+                                }
+                            },{
+                                type: 'line',
+                                xField: 'key',
+                                yField: ['value1'],
+                                markerConfig: {
+                                    type: 'cross',
+                                    size: 4,
+                                    radius: 4,
+                                    'stroke-width': 100
+                                },
+                                style: {
+                                    stroke: '#798EE0',
+                                     width: 100
+                                },
+                                marker: true,
+                                listeners: {
+                                    itemmousemove: function (series, item, event) {
+                                        console.log('itemmousemove', item.category, item.field);
+                                    }
+                                }
+                            }],
+                            legend: {
+                                docked: 'bottom'
+                            }
+                        }); 
+                        panel.add(chart);
+                    },
+                    failure: function(response) {
+                        Ext.Msg.alert('Fail! Here\'s why: ' + response.responseText);
+                    }
+                });
     }
 });
 

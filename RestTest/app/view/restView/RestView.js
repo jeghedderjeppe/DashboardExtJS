@@ -12,12 +12,12 @@ var showComboStore = Ext.create('Ext.data.Store',{
 		{'show': 'Dropouts per milestone', 'abbr': 'GetDropoutsPerMilestone'},
 		{'show': 'Percentage finished for all videos', 'abbr': 'GetPercentageFinishedForAllVideos'},
 		{'show': 'Average percent watched', 'abbr': 'GetDropoutsPercentForAllVideos'},
-		{'show': 'Time per job', 'abbr': 'testJobSystemConnector'},
 		{'show': 'GetJobChainsByLongestCompletionTime', 'abbr': 'GetJobChainsByLongestCompletionTime'},
 		{'show': 'GetFailedJobChains', 'abbr': 'GetFailedJobChains'},
 		{'show': 'GetTimeSpentPerJob', 'abbr': 'GetTimeSpentPerJob'},
-		{'show': 'Failed Job Allocation', 'abbr': 'GetFailedJobTypeAllocation'}
-
+		{'show': 'Failed Job Allocation', 'abbr': 'GetFailedJobTypeAllocation'},
+		{'show': 'GetAverageJobTimePerBatchServer', 'abbr': 'GetAverageJobTimePerBatchServer'},
+		{'show': 'GetAmountStartedForAllVideos', 'abbr': 'GetAmountStartedForAllVideos'}
 	]
 });
 
@@ -34,7 +34,8 @@ var videos = Ext.create('Ext.data.Store',{
 	fields: ['show', 'abbr'],
 	data: [
 		{'show': 'Train tracks', 'abbr' : 123},
-		{'show': 'Ferry of awsome', 'abbr': 456}
+		{'show': 'Ferry of awsome', 'abbr': 456},
+		{'show': ''}
 	]
 });
 
