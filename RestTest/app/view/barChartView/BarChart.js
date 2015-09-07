@@ -33,12 +33,32 @@ Ext.define("RestTest.view.barChartView.BarChart", {
 		position: 'left',
 		grid: true
 	}],*/
+	legend: {
+		visible: true,
+		position: 'right'
+	},
 	series:{
+		highlight: true,
 		type: 'line',
 		smooth: false,
 		marker: {radius:5},
 		xField: 'Key',
-		yField: 'Value'
+		yField: 'Value',
+		tooltip: {
+			trackMouse: true,
+			interactions: [{
+            	type: 'itemhighlight'
+          	}],
+			width: 100,
+			height: 100,
+			scope: this,
+			renderer: function (toolTip, storeItem, item) {
+				toolTip.setHtml(storeItem.get('Value'));
+				// console.log(toolTip);
+				console.log(storeItem);
+				// console.log(item);
+			}
+		}
 	},
 	bbar: {
 		xtype: 'button',

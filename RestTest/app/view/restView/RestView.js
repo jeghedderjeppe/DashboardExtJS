@@ -103,6 +103,12 @@ Ext.define("RestTest.view.restView.RestView", {
 			listeners:{
 				click: 'showTestChart'
 			}
+		}, {
+			xtype: 'button',
+			text: 'Tooltip Test',
+			listeners:{
+				click: 'tooltipTestShow'
+			}
 		}]
 	},{
 		xtype: 'panel',

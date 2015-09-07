@@ -3,11 +3,15 @@ Ext.define('RestTest.view.testViews.MultipleDatasetsChart', {
 
 	xtype: 'jeppes-multi-chart',
 
+	requires: [
+		'Ext.chart.interactions.ItemHighlight'
+	],
+
 	title: 'Multi Chart test',
 	width: 800,
 	height: 400,
 	padding: 10,
-	animate:true,
+	animate: true,
 	insetPadding: 10,
 
 	store: {
