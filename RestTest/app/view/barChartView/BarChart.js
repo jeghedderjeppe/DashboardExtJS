@@ -13,7 +13,6 @@ Ext.define("RestTest.view.barChartView.BarChart", {
 	],
 
 	controller: 'barChart',
-	title: 'cartesian',
 	xtype: "jeppes-chart",
 	width: 800,
 	height: 400,
@@ -34,8 +33,7 @@ Ext.define("RestTest.view.barChartView.BarChart", {
 		grid: true
 	}],*/
 	legend: {
-		visible: true,
-		position: 'right'
+		docked: 'right'
 	},
 	series:{
 		highlight: true,
@@ -45,7 +43,7 @@ Ext.define("RestTest.view.barChartView.BarChart", {
 		xField: 'Key',
 		yField: 'Value',
 		tooltip: {
-			trackMouse: true,
+			trackMouse: false,
 			interactions: [{
             	type: 'itemhighlight'
           	}],

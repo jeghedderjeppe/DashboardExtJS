@@ -33,9 +33,9 @@ var showHow = Ext.create('Ext.data.Store',{
 var videos = Ext.create('Ext.data.Store',{
 	fields: ['show', 'abbr'],
 	data: [
-		{'show': 'Train tracks', 'abbr' : 123},
-		{'show': 'Ferry of awsome', 'abbr': 456},
-		{'show': ''}
+		{'show': 'Klint', 'abbr' : 128},
+		{'show': 'Bike Ferry', 'abbr': 129},
+		{'show': 'Food Stuff', 'abbr': 116}
 	]
 });
 
