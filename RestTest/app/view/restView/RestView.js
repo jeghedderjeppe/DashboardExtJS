@@ -21,6 +21,15 @@ var showComboStore = Ext.create('Ext.data.Store',{
 	]
 });
 
+var datesForCombo = Ext.create('Ext.data.Store',{
+	fields: ['show', 'abbr'],
+	data: [
+		{'show': 'Today', 'abbr' : 'yesterday'},
+		{'show': 'Bar chart', 'abbr' : 'bar'},
+		{'show': 'Pie chart', 'abbr' : 'pie'}
+	]
+});
+
 var showHow = Ext.create('Ext.data.Store',{
 	fields: ['show', 'abbr'],
 	data: [
@@ -91,6 +100,16 @@ Ext.define("RestTest.view.restView.RestView", {
 			valueField: 'abbr',
 			reference: 'videosCombo',
 			width: 200
+		},{
+			xtype: 'combo',
+			forceSelection: true,
+			emptyText:'Select Timespan',
+			bodyPadding: 2,
+			store: datesForCombo,
+			displayField: 'show',
+			valueField: 'abbr',
+			reference: 'datesCombo',
+			width: 200
 		}, {
 			xtype: 'button',
 			text: 'Show stats',
@@ -129,3 +148,4 @@ Ext.define("RestTest.view.restView.RestView", {
 		
 	}]
 });
+

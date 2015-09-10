@@ -72,7 +72,19 @@ Ext.define('RestTest.view.restView.RestViewController', {
     },
 
     onShowButtonClick: function() {
-        var panel = this.lookupReference('outputPanel');
+        function getDatetime(valueFromDatesCombo) {
+            var date = new Date();
+            switch (valueFromDatesCombo) {
+                case "yesterday":
+                    date = date.setDate(date.getDate() - 1);
+                    break;
+            }
+            return date;
+
+        }
+
+        var datesChosen = this.lookupReference('datesCombo');
+        Ext.Msg.alert(getDatetime(datesChosen.getValue()));
         var whatToShowCombo = this.lookupReference('whatToShowCombo');
         var howToShowCombo = this.lookupReference('howToShowCombo');
 
@@ -245,6 +257,7 @@ Ext.define('RestTest.view.restView.RestViewController', {
                         smooth: dataFromWcf.Series[i].Smooth,
                         xField: dataFromWcf.Series[i].XField, 
                         yField: dataFromWcf.Series[i].YField, 
+                        marker: true,
                         tooltip: {
                             trackMouse: true,
                             interactions: [{
