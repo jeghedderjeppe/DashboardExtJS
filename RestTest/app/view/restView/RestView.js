@@ -24,9 +24,17 @@ var showComboStore = Ext.create('Ext.data.Store',{
 var datesForCombo = Ext.create('Ext.data.Store',{
 	fields: ['show', 'abbr'],
 	data: [
-		{'show': 'Today', 'abbr' : 'yesterday'},
-		{'show': 'Bar chart', 'abbr' : 'bar'},
-		{'show': 'Pie chart', 'abbr' : 'pie'}
+		{'show': 'Today',     'abbr' : 'zeroDay'},
+		{'show': 'Yesterday', 'abbr' : 'oneDay'},
+		{'show': '3 Days', '   abbr' : 'threeDay'},
+		{'show': '1 week', 'abbr' : 'oneWeek'},
+		{'show': '2 weeks', 'abbr' : 'twoWeek'},
+		{'show': '3 weeks', 'abbr' : 'threeWeek'},
+		{'show': '4 weeks', 'abbr' : 'fourWeek'},
+		{'show': '1 month', 'abbr' : 'oneMonth'},
+		{'show': '2 month', 'abbr' : 'twoMonth'},
+		{'show': '3 month', 'abbr' : 'threeMonth'},
+		{'show': '4 month', 'abbr' : 'fourMonth'}
 	]
 });
 
@@ -110,6 +118,12 @@ Ext.define("RestTest.view.restView.RestView", {
 			valueField: 'abbr',
 			reference: 'datesCombo',
 			width: 200
+		},{
+			xtype: 'datepicker',
+	        minDate: new Date(),
+	        handler: function(picker, date) {
+	            testtest = date;
+	        }
 		}, {
 			xtype: 'button',
 			text: 'Show stats',
