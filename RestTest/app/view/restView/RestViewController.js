@@ -1,4 +1,4 @@
-var testtest;
+var globalStartDate, globalEndDate, isCustomDate = false;
 Ext.define('RestTest.view.restView.RestViewController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.restview',
@@ -6,6 +6,16 @@ Ext.define('RestTest.view.restView.RestViewController', {
     requires: [
         'RestTest.view.barChartView.BarChart'
     ],
+    checkboxHandler: function (checkbox, checked) {
+        var startDatepicker = this.lookupReference('startDatepicker');
+        var endDatepicker = this.lookupReference('endDatepicker');
+        var dateCombo = this.lookupReference('datesCombo');
+        dateCombo.setHidden(checked);
+        startDatepicker.setVisible(checked);
+        endDatepicker.setVisible(checked);
+        isCustomDate = checked;
+    },
+
     onGetButtonClick: function() {
         var outputChart = this.lookupReference('outputChart');
         outputContainer.update(input);
@@ -112,30 +122,37 @@ Ext.define('RestTest.view.restView.RestViewController', {
                 default:
                     date = date.setMonth(date.getMonth() - 1);
             }
+            console.log(date);
             return new Date(date).toJSON().split("T")[0];
         }
 
-
         var datesChosen = this.lookupReference('datesCombo');
-        console.log(datesChosen);
-        var chosenDay = datesChosen.getValue();
-        console.log(chosenDay);
-        var date = getDatetime(chosenDay);
-        console.log("vvv this is date");
-        console.log(date);
-        console.log("vvv this is testest");
-        //console.log(new Date(date).toJSON().split("T")[0]);
-        console.log(testtest);
         var panel = this.lookupReference('outputPanel');
         var whatToShowCombo = this.lookupReference('whatToShowCombo');
         var howToShowCombo = this.lookupReference('howToShowCombo');
-
+        var videoToShowStats = this.lookupReference('videosCombo').getValue();
+        
         var whatToShowValue = whatToShowCombo.getValue();
         var howToShowValue = howToShowCombo.getValue();
-        var videoToShowStats = this.lookupReference('videosCombo').getValue();
+        var chosenDay = datesChosen.getValue();
+        
+        var startDate, endDate;
+        if (isCustomDate) {
+            startDate = globalStartDate;
+            endDate = globalEndDate;
+        } else {
+            startDate = getDatetime(chosenDay);
+            endDate = new Date().toJSON().split('T')[0];
+        };
+        console.log('isCustom:');
+        console.log(isCustomDate);
+        console.log('start date:');
+        console.log(startDate);
+        console.log('end date:');
+        console.log(endDate);
         var xAxisName, yAxisName, title;
 
-        var parameters = 'parameters=maxResult=25';
+        var parameters = 'parameters=maxResult=25|startDate='+startDate+"|endDate="+endDate;
         var label = function(v) { return v };
 
         switch (whatToShowValue) {

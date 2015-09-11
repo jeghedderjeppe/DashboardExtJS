@@ -24,17 +24,17 @@ var showComboStore = Ext.create('Ext.data.Store',{
 var datesForCombo = Ext.create('Ext.data.Store',{
 	fields: ['show', 'abbr'],
 	data: [
-		{'show': 'Today',     'abbr' : 'zeroDay'},
-		{'show': 'Yesterday', 'abbr' : 'oneDay'},
-		{'show': '3 Days', '   abbr' : 'threeDay'},
-		{'show': '1 week', 'abbr' : 'oneWeek'},
-		{'show': '2 weeks', 'abbr' : 'twoWeek'},
-		{'show': '3 weeks', 'abbr' : 'threeWeek'},
-		{'show': '4 weeks', 'abbr' : 'fourWeek'},
-		{'show': '1 month', 'abbr' : 'oneMonth'},
-		{'show': '2 month', 'abbr' : 'twoMonth'},
-		{'show': '3 month', 'abbr' : 'threeMonth'},
-		{'show': '4 month', 'abbr' : 'fourMonth'}
+		{'show': 'Today',     	'abbr' : 'zeroDay'},
+		{'show': 'Yesterday', 	'abbr' : 'oneDay'},
+		{'show': '3 Days', 		'abbr' : 'threeDay'},
+		{'show': '1 week', 		'abbr' : 'oneWeek'},
+		{'show': '2 weeks', 	'abbr' : 'twoWeek'},
+		{'show': '3 weeks', 	'abbr' : 'threeWeek'},
+		{'show': '4 weeks', 	'abbr' : 'fourWeek'},
+		{'show': '1 month', 	'abbr' : 'oneMonth'},
+		{'show': '2 month', 	'abbr' : 'twoMonth'},
+		{'show': '3 month', 	'abbr' : 'threeMonth'},
+		{'show': '4 month', 	'abbr' : 'fourMonth'}
 	]
 });
 
@@ -109,6 +109,11 @@ Ext.define("RestTest.view.restView.RestView", {
 			reference: 'videosCombo',
 			width: 200
 		},{
+			xtype: 'checkbox',
+			fieldLabel: 'Custom date',
+			visible: true,
+			handler: 'checkboxHandler'
+		},{
 			xtype: 'combo',
 			forceSelection: true,
 			emptyText:'Select Timespan',
@@ -120,10 +125,19 @@ Ext.define("RestTest.view.restView.RestView", {
 			width: 200
 		},{
 			xtype: 'datepicker',
+			reference: 'startDatepicker',
 			hidden: true,
-	        minDate: new Date(),
+	        maxDate: new Date(),
 	        handler: function(picker, date) {
-	            testtest = date;
+	            globalStartDate = new Date(date.setDate(date.getDate() +1)).toJSON().split('T')[0];
+	        }
+		},{
+			xtype: 'datepicker',
+			reference: 'endDatepicker',
+			hidden: true,
+	        maxDate: new Date(),
+	        handler: function(picker, date) {
+	            globalEndDate = new Date(date.setDate(date.getDate() +1)).toJSON().split('T')[0];
 	        }
 		}, {
 			xtype: 'button',
