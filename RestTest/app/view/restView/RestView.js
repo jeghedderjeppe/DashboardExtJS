@@ -120,6 +120,7 @@ Ext.define("RestTest.view.restView.RestView", {
 			width: 200
 		},{
 			xtype: 'datepicker',
+			hidden: true,
 	        minDate: new Date(),
 	        handler: function(picker, date) {
 	            testtest = date;
