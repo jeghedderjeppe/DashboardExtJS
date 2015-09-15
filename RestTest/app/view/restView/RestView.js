@@ -17,7 +17,8 @@ var showComboStore = Ext.create('Ext.data.Store',{
 		{'show': 'GetTimeSpentPerJob', 'abbr': 'GetTimeSpentPerJob'},
 		{'show': 'Failed Job Allocation', 'abbr': 'GetFailedJobTypeAllocation'},
 		{'show': 'GetAverageJobTimePerBatchServer', 'abbr': 'GetAverageJobTimePerBatchServer'},
-		{'show': 'GetAmountStartedForAllVideos', 'abbr': 'GetAmountStartedForAllVideos'}
+		{'show': 'GetAmountStartedForAllVideos', 'abbr': 'GetAmountStartedForAllVideos'},
+		{'show': 'GetCompletedTypeAllocationOverTime', 'abbr': 'GetCompletedTypeAllocationOverTime'}
 	]
 });
 
@@ -44,6 +45,14 @@ var showHow = Ext.create('Ext.data.Store',{
 		{'show': 'Line chart', 'abbr' : 'line'},
 		{'show': 'Bar chart', 'abbr' : 'bar'},
 		{'show': 'Pie chart', 'abbr' : 'pie'}
+	]
+});
+
+var intertalTypes = Ext.create('Ext.data.Store',{
+	fields: ['show', 'abbr'],
+	data: [
+		{'show': 'Day', 'abbr' : 'day'},
+		{'show': 'Month', 'abbr' : 'month'}
 	]
 });
 
@@ -124,6 +133,16 @@ Ext.define("RestTest.view.restView.RestView", {
 			reference: 'datesCombo',
 			width: 200
 		},{
+			xtype: 'combo',
+			forceSelection: true,
+			emptyText:'Select interval',
+			bodyPadding: 2,
+			store: intertalTypes,
+			displayField: 'show',
+			valueField: 'abbr',
+			reference: 'intervalCombo',
+			width: 200
+		},{
 			xtype: 'datepicker',
 			reference: 'startDatepicker',
 			hidden: true,
@@ -139,6 +158,10 @@ Ext.define("RestTest.view.restView.RestView", {
 	        handler: function(picker, date) {
 	            globalEndDate = new Date(date.setDate(date.getDate() +1)).toJSON().split('T')[0];
 	        }
+		}, {
+			xtype: 'textfield',
+			fieldLabel: '    Max results: ',
+			reference: 'maxResultTextField'
 		}, {
 			xtype: 'button',
 			text: 'Show stats',
