@@ -52,6 +52,7 @@ var intertalTypes = Ext.create('Ext.data.Store',{
 	fields: ['show', 'abbr'],
 	data: [
 		{'show': 'Day', 'abbr' : 'day'},
+		{'show': 'Week', 'abbr': 'week'},
 		{'show': 'Month', 'abbr' : 'month'}
 	]
 });

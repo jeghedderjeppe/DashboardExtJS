@@ -8,7 +8,8 @@ Ext.define('RestTest.view.restView.RestViewController', {
         'Ext.chart.interactions.Rotate',
         'Ext.chart.series.Pie',
         'Ext.chart.series.Area',
-        'Ext.chart.interactions.CrossZoom'
+        'Ext.chart.interactions.CrossZoom',
+        'Ext.chart.interactions.Crosshair'
     ],
     checkboxHandler: function (checkbox, checked) {
         var startDatepicker = this.lookupReference('startDatepicker');
