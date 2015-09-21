@@ -231,7 +231,8 @@ Ext.define('RestTest.view.restView.RestViewController', {
                 xAxisName = 'JobID';
                 yAxisName = 'Seconds spent';
                 title = 'GetTimeSpentPerJob';
-                parameters += '|jobChainId=' + 42665;
+                var jobChainId = this.lookupReference('jobChainIdTextField').getValue();
+                parameters += '|jobChainId=' + jobChainId;
                 break;
             case 'GetFailedJobTypeAllocation':
                 xAxisName = 'JobID';

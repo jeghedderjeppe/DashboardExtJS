@@ -44,7 +44,8 @@ var showHow = Ext.create('Ext.data.Store',{
 	data: [
 		{'show': 'Line chart', 'abbr' : 'line'},
 		{'show': 'Bar chart', 'abbr' : 'bar'},
-		{'show': 'Pie chart', 'abbr' : 'pie'}
+		{'show': 'Pie chart', 'abbr' : 'pie'},
+		{'show': '3D Pie chart', 'abbr' : 'pie3d'}
 	]
 });
 
@@ -85,6 +86,11 @@ Ext.define("RestTest.view.restView.RestView", {
 	items: [{
 		xtype:'panel',
 		bodyPadding: 10,
+		autoScroll:true,
+		scrollable:true,
+		defaults: {
+			style:'padding-left:10px;'
+		},
 		layout: {
 			type: 'hbox'
 		},
@@ -98,7 +104,7 @@ Ext.define("RestTest.view.restView.RestView", {
 			valueField: 'abbr',
 			reference: 'whatToShowCombo',
 			width: 200
-		},{
+		}, {
 			xtype: 'combo',
 			forceSelection: true,
 			emptyText:'Select graph',
@@ -122,7 +128,8 @@ Ext.define("RestTest.view.restView.RestView", {
 			xtype: 'checkbox',
 			fieldLabel: 'Custom date',
 			visible: true,
-			handler: 'checkboxHandler'
+			handler: 'checkboxHandler',
+			style:'padding-right:10px;'
 		},{
 			xtype: 'combo',
 			forceSelection: true,
@@ -161,7 +168,12 @@ Ext.define("RestTest.view.restView.RestView", {
 	        }
 		}, {
 			xtype: 'textfield',
-			fieldLabel: '    Max results: ',
+			fieldLabel: 'Job chain ID',
+			reference: 'jobChainIdTextField',
+			
+		}, {
+			xtype: 'textfield',
+			fieldLabel: 'Max results',
 			reference: 'maxResultTextField'
 		}, {
 			xtype: 'button',
