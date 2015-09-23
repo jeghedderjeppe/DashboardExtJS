@@ -44,8 +44,7 @@ var showHow = Ext.create('Ext.data.Store',{
 	data: [
 		{'show': 'Line chart', 'abbr' : 'line'},
 		{'show': 'Bar chart', 'abbr' : 'bar'},
-		{'show': 'Pie chart', 'abbr' : 'pie'},
-		{'show': '3D Pie chart', 'abbr' : 'pie3d'}
+		{'show': 'Pie chart', 'abbr' : 'pie'}
 	]
 });
 
@@ -169,8 +168,7 @@ Ext.define("RestTest.view.restView.RestView", {
 		}, {
 			xtype: 'textfield',
 			fieldLabel: 'Job chain ID',
-			reference: 'jobChainIdTextField',
-			
+			reference: 'jobChainIdTextField'
 		}, {
 			xtype: 'textfield',
 			fieldLabel: 'Max results',

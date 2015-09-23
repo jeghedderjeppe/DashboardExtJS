@@ -152,6 +152,9 @@ Ext.define('RestTest.view.restView.RestViewController', {
         if (!maxResult) {
             maxResult = 25;
         };
+        if (howToShowValue === 'null' || !howToShowValue) {
+            howToShowValue = 'line';
+        };
         var xAxisName, yAxisName, title;
 
         var parameters = 'parameters=maxResult='+maxResult+'|startDate='+startDate+"|endDate="+endDate+'|seriesType='+howToShowValue;
@@ -300,9 +303,9 @@ Ext.define('RestTest.view.restView.RestViewController', {
                 var dataFromWcf;
                 try{
                     dataFromWcf = Ext.JSON.decode(responseText);
-                    console.log(dataFromWcf);
+                    //console.log(dataFromWcf);
                     if (typeof dataFromWcf.KeyValues[0] === 'string') { 
-                        console.log(dataFromWcf.KeyValues[0]);
+                        //console.log(dataFromWcf.KeyValues[0]);
                         //dataFromWcf.KeyValues = JSON.parse(dataFromWcf.KeyValues[0]);
                         //console.log(dataFromWcf.KeyValues);
                         dataFromWcf.KeyValues = Ext.JSON.decode(dataFromWcf.KeyValues[0]);
@@ -391,8 +394,10 @@ Ext.define('RestTest.view.restView.RestViewController', {
                         axes:axes,
                         series: series,
                         interactions: 'crosszoom',
+                        style:'padding-bottom:10px;',
                         legend:{
-                            docked: 'right'
+                            docked: 'right',
+                            scrollable: true
                         },
                         interactions: {
                             type: 'crosshair',
@@ -436,8 +441,10 @@ Ext.define('RestTest.view.restView.RestViewController', {
                         height: 400,
                         width: 800,
                         series: series,
+                        style:'padding-bottom:10px;',
                         legend:{
-                            docked: 'right'
+                            docked: 'right',
+                            scrollable: true
                         },
                         bbar: {
                             xtype: 'button',
