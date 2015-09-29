@@ -10,7 +10,8 @@ Ext.define('RestTest.view.restView.RestViewController', {
         'Ext.chart.series.Pie',
         'Ext.chart.series.Area',
         'Ext.chart.interactions.CrossZoom',
-        'Ext.chart.interactions.Crosshair'
+        'Ext.chart.interactions.Crosshair',
+        'Ext.chart.interactions.ItemHighlight'
     ],
     checkboxHandler: function (checkbox, checked) {
         var startDatepicker = this.lookupReference('startDatepicker');
@@ -21,73 +22,6 @@ Ext.define('RestTest.view.restView.RestViewController', {
         endDatepicker.setVisible(checked);
         isCustomDate = checked;
     },
-
-    onGetButtonClick: function() {
-        var outputChart = this.lookupReference('outputChart');
-        outputContainer.update(input);
-
-        Ext.Ajax.request({
-            url: 'http://localhost:49879/SendStatistics.svc/rest/getrequest/GetMostPopularAssets/10', //getpageviewsbybrowser
-            method: 'GET',
-            disableCaching: true,
-            headers: {
-                accept: 'application/json; charset=utf-8'
-            },
-            useDefaultXhrHeader: false,
-
-            success: function(response) {
-                var responseText = response.responseText;
-                //outputContainer.update(responseText);
-                var jsonDataObj = Ext.JSON.decode(responseText);
-                var datastore = Ext.create('Ext.data.Store', {
-                    data: jsonDataObj
-                });
-
-                outputChart.bindStore(datastore);
-
-
-            },
-            failure: function(response) {
-                outputContainer.update('failure');
-            }
-        });
-
-        console.log('after request');
-    },
-
-    onPostButtonClick: function() {
-        var outputContainer = this.lookupReference('outputContainer');
-        var outputChart = this.lookupReference('outputChart');
-
-
-        var ajax = Ext.Ajax.request({
-            url: 'http://localhost:49879/SendStatistics.svc/rest/PostRequest',
-            method: 'POST',
-            /*			disableCaching: false,
-            			cors:true,*/
-            headers: {
-                accept: 'application/json; charset=utf-8'
-            },
-            //params: Ext.encode({parameterOne: 1}),
-            jsonData: {
-                "parameterOne": "1"
-            },
-
-
-            useDefaultXhrHeader: false,
-
-            success: function(response) {
-                console.log('post success!')
-
-
-            },
-            failure: function(response, conn) {
-                console.log(conn);
-            }
-        });
-        console.log(ajax.getDefaultXhrHeader()); //getDefaultXhrHeader
-    },
-
     onShowButtonClick: function() {
         me = this;
         function getDatetime(valueFromDatesCombo) {
@@ -157,105 +91,25 @@ Ext.define('RestTest.view.restView.RestViewController', {
         if (howToShowValue === 'null' || !howToShowValue) {
             howToShowValue = 'line';
         };
-        var xAxisName, yAxisName, title;
 
         var parameters = 'parameters=maxResult='+maxResult+'|startDate='+startDate+"|endDate="+endDate+'|seriesType='+howToShowValue;
         var label = function(v) { return v };
 
         switch (whatToShowValue) {
-            case 'GetMostPopularAssets':
-                yAxisName = 'Antal visninger';
-                xAxisName = 'Assets';
-                title = 'GetMostPopularAssets';
-                break;
-            case 'GetSessionsByBrowser':
-                yAxisName = 'Sessioner';
-                xAxisName = 'Browsere';
-                title = 'GetSessionsByBrowser';
-                break;
-            case 'GetSessionsByOS':
-                yAxisName = 'Sessioner';
-                xAxisName = 'OS';
-                title = 'GetSessionsByOS';
-                break;
-            case 'GetSessionsByCountry':
-                yAxisName = 'Sessioner';
-                xAxisName = 'Land';
-                title = 'GetSessionsByCountry';
-                break;
-            case 'GetSessionsByDeviceCategory':
-                yAxisName = 'Sessioner';
-                xAxisName = 'Enhedskategori';
-                title = 'GetSessionsByDeviceCategory';
-                break;
-            case 'GetMostFavorizedDummy':
-                xAxisName = 'Titel';
-                yAxisName = 'Antal gange favoriseret';
-                title = 'GetMostFavorizedDummy';
-                break;
-            case 'GetAssetTypeAllocationDummy':
-                xAxisName = 'AssetType';
-                yAxisName = 'Amount';
-                title = 'GetAssetTypeAllocationDummy';
-                break;
             case 'GetHitsPerMilestone':
-                xAxisName = 'Milestone';
-                yAxisName = 'Hits';
-                title = 'GetHitsPerMilestone';
                 parameters += '|itemId=' + videoToShowStats;
                 break;
             case 'GetDropoutsPerMilestone':
-                xAxisName = 'Milestone';
-                yAxisName = 'Hits';
-                title = 'GetDropoutsPerMilestone';
                 parameters += '|itemId=' + videoToShowStats;
-                break;
-            case 'GetPercentageFinishedForAllVideos':
-                xAxisName = 'Video';
-                yAxisName = 'Percent';
-                title = 'GetPercentageFinishedForAllVideos';
                 break;
             case 'GetDropoutsPercentForAllVideos':
-                xAxisName = 'Video';
-                yAxisName = '';
                 label = function(v) { return v + '%'; };
                 parameters += '|itemId=' + videoToShowStats;
-                title = 'GetDropoutsPercentForAllVideos';
-                break;
-             case 'GetJobChainsByLongestCompletionTime':
-                xAxisName = 'Job chain ID';
-                yAxisName = 'Seconds spent';
-                title = 'GetJobChainsByLongestCompletionTime';
-                break;
-            case 'GetFailedJobChains':
-                xAxisName = 'Job chain ID';
-                yAxisName = 'Seconds spent';
-                title = 'GetFailedJobChains';
                 break;
              case 'GetTimeSpentPerJob':
-                xAxisName = 'JobID';
-                yAxisName = 'Seconds spent';
-                title = 'GetTimeSpentPerJob';
-                var jobChainId = this.lookupReference('jobChainIdTextField').getValue();
-                parameters += '|jobChainId=' + jobChainId;
-                break;
-            case 'GetFailedJobTypeAllocation':
-                xAxisName = 'JobID';
-                yAxisName = 'Times failed';
-                title = 'GetFailedJobTypeAllocation';
-                break;
-            case 'GetAverageJobTimePerBatchServer':
-                xAxisName = 'Batch server';
-                yAxisName = 'Avg. Job time';
-                title = 'GetAverageJobTimePerBatchServer';
-                break;
-            case 'GetAmountStartedForAllVideos':
-                xAxisName = 'Asset ID';
-                yAxisName = 'Hits';
-                title = 'GetAmountStartedForAllVideos';
+                parameters += '|jobChainId=' + this.lookupReference('jobChainIdTextField').getValue();;
                 break;
             case 'GetCompletedTypeAllocationOverTime':
-                title = 'GetCompletedTypeAllocationOverTime';
                 parameters += ' |intervalType='+this.lookupReference('intervalCombo').getValue();
                 break;
             default:
@@ -263,198 +117,14 @@ Ext.define('RestTest.view.restView.RestViewController', {
                 xAxisName = 'Error';
                 title = 'Error';
         }
-        /*var chart = Ext.create('RestTest.view.barChartView.BarChart', {
-            title: title,
-            series: {
-                type: howToShowValue
-            },
-            axes: [{
-                title: xAxisName,
-                type: 'category',
-                position: 'bottom',
-                label: { renderer: label }
-            }, {
-                title: yAxisName,
-                type: 'numeric',
-                position: 'left',
-                grid: true
-            }]
-        });*/
-
         console.log(parameters + "  " + whatToShowValue);
         addChartToPanel(whatToShowValue, parameters);
        
     },
-    tooltipTestShow: function () {
-        var panel = this.lookupReference('outputPanel');
-        Ext.Ajax.request({
-                    url: 'http://localhost:49879/SendStatistics.svc/rest/GetRequest?method=GetSessionsByDeviceCategory&parameters=maxResult=100|itemId=129',
-                    method: 'GET',
-                    disableCaching: true,
-                    headers: {
-                        accept: 'application/json; charset=utf-8'
-                    },
-                    useDefaultXhrHeader: false,
-
-                    success: function(response) {
-                        
-                        var responseText = response.responseText;
-                        var dataFromWcf = Ext.JSON.decode(responseText);
-
-                        console.log(dataFromWcf);
-                        var store = Ext.create('Ext.data.Store',{
-                                data: dataFromWcf.KeyValues
-                            });
-                        var axes = [];
-                        for (var i = 0; i < dataFromWcf.Axis.length; i++) {
-                            var axis = {
-                                title: dataFromWcf.Axis[i].Title,
-                                type: dataFromWcf.Axis[i].Type,
-                                position: dataFromWcf.Axis[i].Position,
-                                fields: dataFromWcf.Axis[i].Fields
-                            };
-                            axes.push(axis);
-                        };
-                        var series = [];
-                        for (var i = 0; i < dataFromWcf.Series.length; i++) {
-                            var serie = {
-                                title: dataFromWcf.Series[i].Title,
-                                type: dataFromWcf.Series[i].Type,
-                                smooth: dataFromWcf.Series[i].Smooth,
-                                xField: dataFromWcf.Series[i].XField, 
-                                yField: dataFromWcf.Series[i].YField, 
-                                tooltip: {
-                                    trackMouse: true,
-                                    interactions: [{
-                                        type: 'itemhighlight'
-                                    }],
-                                    scope: this,
-                                    renderer: function (toolTip, storeItem, item) {
-                                        toolTip.setHtml(storeItem.get('Tooltip'));
-                                    }
-                                }
-                            };
-                            series.push(serie);
-                        }
-                        var chart = Ext.create('Ext.chart.CartesianChart', {
-                            title: dataFromWcf.Title,
-                            store: store,
-                            height: 400,
-                            width: 800,
-                            axes:axes,
-                            series: series,
-                            legend:{
-                                docked: 'right'
-                            },
-                            bbar: {
-                                xtype: 'button',
-                                text: 'Remove',
-                                listeners: {
-                                    click: 'removeButtonClick'
-                                }
-                            }
-
-                        });
-                        
-                      
-                        console.log(chart.series);
-                        panel.add(chart);
-                    },
-                    failure: function(response) {
-                        Ext.Msg.alert('Fail! Here\'s why: ' + response.responseText);
-                    }
-                });
-    },
-
     removeButtonClick: function (button) {
         var chart = button.up();
         chart.destroy();
-    },
-    showTestChart: function() {
-        var panel = this.lookupReference('outputPanel');
-        /*var testchart = Ext.create('RestTest.view.testViews.MultipleDatasetsChart');
-        panel.add(testchart);*/
-        var mostviewedAssetJson;
-        var mostFavorizedAssetJson;
-        Ext.Ajax.request({
-                    url: 'http://localhost:49879/SendStatistics.svc/rest/GetRequest?method=GetMostPopularAssetVsVsFavorized&parameters=maxResult=100|jobChainId=42665',
-                    method: 'GET',
-                    disableCaching: true,
-                    headers: {
-                        accept: 'application/json; charset=utf-8'
-                    },
-                    useDefaultXhrHeader: false,
-
-                    success: function(response) {
-                        var responseText = response.responseText;
-                        //outputContainer.update(responseText);
-                        mostFavorizedAssetJson = Ext.JSON.decode(responseText);
-                        var store = Ext.create('Ext.data.Store',{
-                                fields: ['key', 'value1', 'value2'],
-                                data: Ext.JSON.decode(responseText)
-                            });//getStoreFromTwoJsonObject(mostviewedAssetJson, mostFavorizedAssetJson, "Views", "Favorizations");
-                        console.log(store);
-                        var chart = Ext.create('RestTest.view.testViews.MultipleDatasetsChart', {
-                            store: store,
-                            height: 400,
-                            width: 800,
-                            axes: [{
-                                title: 'y axis 1',
-                                type: 'numeric',
-                                position: 'left',
-                                grid: true,
-                                fields: ['value1']
-                            },{
-                                title: 'y axis 2',
-                                type: 'numeric',
-                                position: 'right',
-                                fields: ['value2']
-                            }, {
-                                title: 'x axis',
-                                type: 'category',
-                                position: 'bottom',
-                                fields: ['key']
-                            }],
-                            series: [{
-                                type: 'bar',
-                                xField: 'key',
-                                yField: 'value2',
-                                style: {
-                                     fill: "#C92020"
-                                }
-                            },{
-                                type: 'line',
-                                xField: 'key',
-                                yField: ['value1'],
-                                markerConfig: {
-                                    type: 'cross',
-                                    size: 4,
-                                    radius: 4,
-                                    'stroke-width': 100
-                                },
-                                style: {
-                                    stroke: '#798EE0',
-                                     width: 100
-                                },
-                                marker: true,
-                                listeners: {
-                                    itemmousemove: function (series, item, event) {
-                                        console.log('itemmousemove', item.category, item.field);
-                                    }
-                                }
-                            }],
-                            legend: {
-                                docked: 'bottom'
-                            }
-                        }); 
-                        panel.add(chart);
-                    },
-                    failure: function(response) {
-                        Ext.Msg.alert('Fail! Here\'s why: ' + response.responseText);
-                    }
-                });
     }
-
 });
 
 function addChartToPanel (whatToShowValue, parameters) {      
@@ -469,24 +139,11 @@ function addChartToPanel (whatToShowValue, parameters) {
             useDefaultXhrHeader: false,
 
             success: function(response) {
-                /*var responseText = response.responseText;
-                //outputContainer.update(responseText);
-                var jsonDataObj = Ext.JSON.decode(responseText);
-                var datastore = Ext.create('Ext.data.Store', {
-                    data: jsonDataObj
-                });
-                console.log(jsonDataObj);
-                //console.log(xValue + " " + );
-                chart.bindStore(datastore);*/
                 var responseText = response.responseText;
                 var dataFromWcf;
                 try{
                     dataFromWcf = Ext.JSON.decode(responseText);
-                    //console.log(dataFromWcf);
                     if (typeof dataFromWcf.KeyValues[0] === 'string') { 
-                        //console.log(dataFromWcf.KeyValues[0]);
-                        //dataFromWcf.KeyValues = JSON.parse(dataFromWcf.KeyValues[0]);
-                        //console.log(dataFromWcf.KeyValues);
                         dataFromWcf.KeyValues = Ext.JSON.decode(dataFromWcf.KeyValues[0]);
                         console.log(dataFromWcf.KeyValues);
                     };
@@ -591,6 +248,7 @@ function addChartToPanel (whatToShowValue, parameters) {
 
                             var startDate = item.record.data.startDate;
                             var endDate   = item.record.data.endDate;
+                            console.log(item.record.data);
                             addChartToPanel('GetCompletedTypeAllocationOverTime', 'parameters=' +
                                 'maxResult=' + 7 +
                                 '|startDate=' + startDate +
@@ -601,36 +259,6 @@ function addChartToPanel (whatToShowValue, parameters) {
                         }
                     }
                 }
-
-                // function getMonthNumber(monthName) {
-                //     switch (monthName) {
-                //         case 'januar':
-                //             return 1;
-                //         case 'februar':
-                //             return 2;
-                //         case 'marts':
-                //             return 3;
-                //         case 'april':
-                //             return 4;
-                //         case 'maj':
-                //             return 5;
-                //         case 'juni':
-                //             return 6;
-                //         case 'juli':
-                //             return 7;
-                //         case 'august':
-                //             return 8;
-                //         case 'september':
-                //             return 9;
-                //         case 'oktober':
-                //             return 10;
-                //         case 'november':
-                //             return 11;
-                //         case 'december':
-                //             return 12;
-                //     }
-                // }
-
                 var chart;
                 if (dataFromWcf.Series[0].Type != 'pie') {
                     chart = Ext.create('Ext.chart.CartesianChart', {
@@ -980,3 +608,305 @@ function jeppesJsonObj (keyfromJson1, valueFromJson1, json2, firstYKey, secondYK
                         //         docked: 'right'
                         //     }
                         // }); 
+
+// showTestChart: function() {
+//         var panel = this.lookupReference('outputPanel');
+//         /*var testchart = Ext.create('RestTest.view.testViews.MultipleDatasetsChart');
+//         panel.add(testchart);*/
+//         var mostviewedAssetJson;
+//         var mostFavorizedAssetJson;
+//         Ext.Ajax.request({
+//                     url: 'http://localhost:49879/SendStatistics.svc/rest/GetRequest?method=GetMostPopularAssetVsVsFavorized&parameters=maxResult=100|jobChainId=42665',
+//                     method: 'GET',
+//                     disableCaching: true,
+//                     headers: {
+//                         accept: 'application/json; charset=utf-8'
+//                     },
+//                     useDefaultXhrHeader: false,
+
+//                     success: function(response) {
+//                         var responseText = response.responseText;
+//                         //outputContainer.update(responseText);
+//                         mostFavorizedAssetJson = Ext.JSON.decode(responseText);
+//                         var store = Ext.create('Ext.data.Store',{
+//                                 fields: ['key', 'value1', 'value2'],
+//                                 data: Ext.JSON.decode(responseText)
+//                             });//getStoreFromTwoJsonObject(mostviewedAssetJson, mostFavorizedAssetJson, "Views", "Favorizations");
+//                         console.log(store);
+//                         var chart = Ext.create('RestTest.view.testViews.MultipleDatasetsChart', {
+//                             store: store,
+//                             height: 400,
+//                             width: 800,
+//                             axes: [{
+//                                 title: 'y axis 1',
+//                                 type: 'numeric',
+//                                 position: 'left',
+//                                 grid: true,
+//                                 fields: ['value1']
+//                             },{
+//                                 title: 'y axis 2',
+//                                 type: 'numeric',
+//                                 position: 'right',
+//                                 fields: ['value2']
+//                             }, {
+//                                 title: 'x axis',
+//                                 type: 'category',
+//                                 position: 'bottom',
+//                                 fields: ['key']
+//                             }],
+//                             series: [{
+//                                 type: 'bar',
+//                                 xField: 'key',
+//                                 yField: 'value2',
+//                                 style: {
+//                                      fill: "#C92020"
+//                                 }
+//                             },{
+//                                 type: 'line',
+//                                 xField: 'key',
+//                                 yField: ['value1'],
+//                                 markerConfig: {
+//                                     type: 'cross',
+//                                     size: 4,
+//                                     radius: 4,
+//                                     'stroke-width': 100
+//                                 },
+//                                 style: {
+//                                     stroke: '#798EE0',
+//                                      width: 100
+//                                 },
+//                                 marker: true,
+//                                 listeners: {
+//                                     itemmousemove: function (series, item, event) {
+//                                         console.log('itemmousemove', item.category, item.field);
+//                                     }
+//                                 }
+//                             }],
+//                             legend: {
+//                                 docked: 'bottom'
+//                             }
+//                         }); 
+//                         panel.add(chart);
+//                     },
+//                     failure: function(response) {
+//                         Ext.Msg.alert('Fail! Here\'s why: ' + response.responseText);
+//                     }
+//                 });
+//     }
+
+/*    tooltipTestShow: function () {
+        var panel = this.lookupReference('outputPanel');
+        Ext.Ajax.request({
+                    url: 'http://localhost:49879/SendStatistics.svc/rest/GetRequest?method=GetSessionsByDeviceCategory&parameters=maxResult=100|itemId=129',
+                    method: 'GET',
+                    disableCaching: true,
+                    headers: {
+                        accept: 'application/json; charset=utf-8'
+                    },
+                    useDefaultXhrHeader: false,
+
+                    success: function(response) {
+                        
+                        var responseText = response.responseText;
+                        var dataFromWcf = Ext.JSON.decode(responseText);
+
+                        console.log(dataFromWcf);
+                        var store = Ext.create('Ext.data.Store',{
+                                data: dataFromWcf.KeyValues
+                            });
+                        var axes = [];
+                        for (var i = 0; i < dataFromWcf.Axis.length; i++) {
+                            var axis = {
+                                title: dataFromWcf.Axis[i].Title,
+                                type: dataFromWcf.Axis[i].Type,
+                                position: dataFromWcf.Axis[i].Position,
+                                fields: dataFromWcf.Axis[i].Fields
+                            };
+                            axes.push(axis);
+                        };
+                        var series = [];
+                        for (var i = 0; i < dataFromWcf.Series.length; i++) {
+                            var serie = {
+                                title: dataFromWcf.Series[i].Title,
+                                type: dataFromWcf.Series[i].Type,
+                                smooth: dataFromWcf.Series[i].Smooth,
+                                xField: dataFromWcf.Series[i].XField, 
+                                yField: dataFromWcf.Series[i].YField, 
+                                tooltip: {
+                                    trackMouse: true,
+                                    interactions: [{
+                                        type: 'itemhighlight'
+                                    }],
+                                    scope: this,
+                                    renderer: function (toolTip, storeItem, item) {
+                                        toolTip.setHtml(storeItem.get('Tooltip'));
+                                    }
+                                }
+                            };
+                            series.push(serie);
+                        }
+                        var chart = Ext.create('Ext.chart.CartesianChart', {
+                            title: dataFromWcf.Title,
+                            store: store,
+                            height: 400,
+                            width: 800,
+                            axes:axes,
+                            series: series,
+                            legend:{
+                                docked: 'right'
+                            },
+                            bbar: {
+                                xtype: 'button',
+                                text: 'Remove',
+                                listeners: {
+                                    click: 'removeButtonClick'
+                                }
+                            }
+
+                        });
+                        
+                      
+                        console.log(chart.series);
+                        panel.add(chart);
+                    },
+                    failure: function(response) {
+                        Ext.Msg.alert('Fail! Here\'s why: ' + response.responseText);
+                    }
+                });
+    },*/
+
+
+   /*         case 'GetMostPopularAssets':
+                yAxisName = 'Antal visninger';
+                xAxisName = 'Assets';
+                title = 'GetMostPopularAssets';
+                break;
+            case 'GetSessionsByBrowser':
+                yAxisName = 'Sessioner';
+                xAxisName = 'Browsere';
+                title = 'GetSessionsByBrowser';
+                break;
+            case 'GetSessionsByOS':
+                yAxisName = 'Sessioner';
+                xAxisName = 'OS';
+                title = 'GetSessionsByOS';
+                break;
+            case 'GetSessionsByCountry':
+                yAxisName = 'Sessioner';
+                xAxisName = 'Land';
+                title = 'GetSessionsByCountry';
+                break;
+            case 'GetSessionsByDeviceCategory':
+                yAxisName = 'Sessioner';
+                xAxisName = 'Enhedskategori';
+                title = 'GetSessionsByDeviceCategory';
+                break;
+            case 'GetMostFavorizedDummy':
+                xAxisName = 'Titel';
+                yAxisName = 'Antal gange favoriseret';
+                title = 'GetMostFavorizedDummy';
+                break;
+            case 'GetAssetTypeAllocationDummy':
+                xAxisName = 'AssetType';
+                yAxisName = 'Amount';
+                title = 'GetAssetTypeAllocationDummy';
+                break;
+            case 'GetFailedJobTypeAllocation':
+                xAxisName = 'JobID';
+                yAxisName = 'Times failed';
+                title = 'GetFailedJobTypeAllocation';
+                break;
+            case 'GetPercentageFinishedForAllVideos':
+                xAxisName = 'Video';
+                yAxisName = 'Percent';
+                title = 'GetPercentageFinishedForAllVideos';
+                break;
+             case 'GetJobChainsByLongestCompletionTime':
+                xAxisName = 'Job chain ID';
+                yAxisName = 'Seconds spent';
+                title = 'GetJobChainsByLongestCompletionTime';
+                break;
+            case 'GetFailedJobChains':
+                xAxisName = 'Job chain ID';
+                yAxisName = 'Seconds spent';
+                title = 'GetFailedJobChains';
+                break;
+            case 'GetAverageJobTimePerBatchServer':
+                xAxisName = 'Batch server';
+                yAxisName = 'Avg. Job time';
+                title = 'GetAverageJobTimePerBatchServer';
+                break;
+            case 'GetAmountStartedForAllVideos':
+                xAxisName = 'Asset ID';
+                yAxisName = 'Hits';
+                title = 'GetAmountStartedForAllVideos';
+                break;*/
+
+
+    //     onPostButtonClick: function() {
+    //     var outputContainer = this.lookupReference('outputContainer');
+    //     var outputChart = this.lookupReference('outputChart');
+
+
+    //     var ajax = Ext.Ajax.request({
+    //         url: 'http://localhost:49879/SendStatistics.svc/rest/PostRequest',
+    //         method: 'POST',
+    //         /*          disableCaching: false,
+    //                     cors:true,*/
+    //         headers: {
+    //             accept: 'application/json; charset=utf-8'
+    //         },
+    //         //params: Ext.encode({parameterOne: 1}),
+    //         jsonData: {
+    //             "parameterOne": "1"
+    //         },
+
+
+    //         useDefaultXhrHeader: false,
+
+    //         success: function(response) {
+    //             console.log('post success!')
+
+
+    //         },
+    //         failure: function(response, conn) {
+    //             console.log(conn);
+    //         }
+    //     });
+    //     console.log(ajax.getDefaultXhrHeader()); //getDefaultXhrHeader
+    // },
+
+    
+
+    // onGetButtonClick: function() {
+    //     var outputChart = this.lookupReference('outputChart');
+    //     outputContainer.update(input);
+
+    //     Ext.Ajax.request({
+    //         url: 'http://localhost:49879/SendStatistics.svc/rest/getrequest/GetMostPopularAssets/10', //getpageviewsbybrowser
+    //         method: 'GET',
+    //         disableCaching: true,
+    //         headers: {
+    //             accept: 'application/json; charset=utf-8'
+    //         },
+    //         useDefaultXhrHeader: false,
+
+    //         success: function(response) {
+    //             var responseText = response.responseText;
+    //             //outputContainer.update(responseText);
+    //             var jsonDataObj = Ext.JSON.decode(responseText);
+    //             var datastore = Ext.create('Ext.data.Store', {
+    //                 data: jsonDataObj
+    //             });
+
+    //             outputChart.bindStore(datastore);
+
+
+    //         },
+    //         failure: function(response) {
+    //             outputContainer.update('failure');
+    //         }
+    //     });
+
+    //     console.log('after request');
+    // },
