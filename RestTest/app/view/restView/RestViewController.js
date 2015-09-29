@@ -656,8 +656,8 @@ function addChartToPanel (whatToShowValue, parameters) {
                         tbar: {
                             xtype: 'button',
                             text: 'Save chart to PNG',
-                            handler: function () {
-                                this.save({
+                            handler: function (btn) {
+                                chart.save({
                                     type: 'image/png'
                                 });
                             }
