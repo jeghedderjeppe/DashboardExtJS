@@ -580,9 +580,9 @@ function addChartToPanel (whatToShowValue, parameters) {
                             if (item.record.data.hasOwnProperty('day')) {
                                 
                             } else if (item.record.data.hasOwnProperty('week')) {
-                                intervalType = 'day';//item.record.data.week;
+                                intervalType = 'day';
                             } else if (item.record.data.hasOwnProperty('month')) {
-                                intervalType = 'week';//item.record.data.month;
+                                intervalType = 'week';
                             } else {
                                 //ERROR
                             }
