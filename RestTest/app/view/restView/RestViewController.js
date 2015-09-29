@@ -1,4 +1,5 @@
 var globalStartDate, globalEndDate, isCustomDate = false;
+var me;
 Ext.define('RestTest.view.restView.RestViewController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.restview',
@@ -88,6 +89,7 @@ Ext.define('RestTest.view.restView.RestViewController', {
     },
 
     onShowButtonClick: function() {
+        me = this;
         function getDatetime(valueFromDatesCombo) {
             var date = new Date();
             switch (valueFromDatesCombo) {
@@ -131,7 +133,7 @@ Ext.define('RestTest.view.restView.RestViewController', {
         }
 
         var datesChosen = this.lookupReference('datesCombo');
-        var panel = this.lookupReference('outputPanel');
+        
         var whatToShowCombo = this.lookupReference('whatToShowCombo');
         var howToShowCombo = this.lookupReference('howToShowCombo');
         var maxResult = this.lookupReference('maxResultTextField').getValue();
@@ -280,189 +282,8 @@ Ext.define('RestTest.view.restView.RestViewController', {
         });*/
 
         console.log(parameters + "  " + whatToShowValue);
-        Ext.Ajax.request({
-            url: 'http://localhost:49879/SendStatistics.svc/rest/getrequest?method=' + whatToShowValue + '&' + parameters, //getpageviewsbybrowser
-            method: 'GET',
-            disableCaching: true,
-            headers: {
-                accept: 'application/json; charset=utf-8'
-            },
-            useDefaultXhrHeader: false,
-
-            success: function(response) {
-                /*var responseText = response.responseText;
-                //outputContainer.update(responseText);
-                var jsonDataObj = Ext.JSON.decode(responseText);
-                var datastore = Ext.create('Ext.data.Store', {
-                    data: jsonDataObj
-                });
-                console.log(jsonDataObj);
-                //console.log(xValue + " " + );
-                chart.bindStore(datastore);*/
-                var responseText = response.responseText;
-                var dataFromWcf;
-                try{
-                    dataFromWcf = Ext.JSON.decode(responseText);
-                    //console.log(dataFromWcf);
-                    if (typeof dataFromWcf.KeyValues[0] === 'string') { 
-                        //console.log(dataFromWcf.KeyValues[0]);
-                        //dataFromWcf.KeyValues = JSON.parse(dataFromWcf.KeyValues[0]);
-                        //console.log(dataFromWcf.KeyValues);
-                        dataFromWcf.KeyValues = Ext.JSON.decode(dataFromWcf.KeyValues[0]);
-                        console.log(dataFromWcf.KeyValues);
-                    };
-                } catch(e){
-                    console.log(e);
-                    Ext.Msg.alert(response.responseText);
-                }
-
-                console.log(dataFromWcf);
-                var store = Ext.create('Ext.data.Store',{
-                        data: dataFromWcf.KeyValues
-                    });
-                var axes = [];
-                if (dataFromWcf.Series[0].Type != 'pie') {
-                    for (var i = 0; i < dataFromWcf.Axis.length; i++) {
-                        var axis = {
-                            title: dataFromWcf.Axis[i].Title,
-                            type: dataFromWcf.Axis[i].Type,
-                            position: dataFromWcf.Axis[i].Position,
-                            fields: dataFromWcf.Axis[i].Fields
-                        };
-                        axes.push(axis);
-                    };
-                };
-                var series = [];
-
-                for (var i = 0; i < dataFromWcf.Series.length; i++) {
-                    var serie;
-                    if (dataFromWcf.Series[0].Type != 'pie') {
-                         serie = {
-                            title: dataFromWcf.Series[i].Title,
-                            type: dataFromWcf.Series[i].Type,
-                            smooth: dataFromWcf.Series[i].Smooth,
-                            xField: dataFromWcf.Series[i].XField, 
-                            yField: dataFromWcf.Series[i].YField, 
-                            marker: true,
-                            highlight: {
-                                size: 7,
-                                radius: 7
-                            },
-                            tooltip: {
-                                trackMouse: true,
-                                interactions: [{
-                                    type: 'itemhighlight'
-                                }],
-                                scope: this,
-                                renderer: function (toolTip, storeItem, item) {
-                                    toolTip.setHtml(storeItem.get('Tooltip'));
-                                }
-                            }
-                        };
-                    } else {
-                        var serie = {
-                            title: dataFromWcf.Series[i].Title,
-                            type: dataFromWcf.Series[i].Type,
-                            xField: dataFromWcf.Series[i].YField,
-                            marker: true,
-                            label:{
-                                field: dataFromWcf.Series[i].XField
-                            },
-                            highlight: true,
-                            tooltip: {
-                                trackMouse: true,
-                                interactions: [{
-                                    type: 'itemhighlight'
-                                }],
-                                scope: this,
-                                renderer: function (toolTip, storeItem, item) {
-                                    toolTip.setHtml(storeItem.get('Tooltip'));
-                                }
-                            }
-                        };
-                    };
-                   
-                    series.push(serie);
-                };
-                var chart;
-                if (dataFromWcf.Series[0].Type != 'pie') {
-                    chart = Ext.create('Ext.chart.CartesianChart', {
-                        title: dataFromWcf.Title,
-                        store: store,
-                        height: 400,
-                        width: 800,
-                        axes:axes,
-                        series: series,
-                        interactions: 'crosszoom',
-                        style:'padding-bottom:10px;',
-                        legend:{
-                            docked: 'right',
-                            scrollable: true
-                        },
-                        interactions: {
-                            type: 'crosshair',
-                            axes: {
-                                left: {
-                                    label: {
-                                        fillStyle: 'white'
-                                    },
-                                    rect: {
-                                        fillStyle: 'brown',
-                                        radius: 6
-                                    }
-                                },
-                                bottom: {
-                                    label: {
-                                        fontSize: '14px',
-                                        fontWeight: 'bold'
-                                    }
-                                }
-                            },
-                            lines: {
-                                horizontal: {
-                                    strokeStyle: 'brown',
-                                    lineWidth: 2,
-                                    lineDash: [20, 2, 2, 2, 2, 2, 2, 2]
-                                }
-                            }
-                        },
-                        bbar: {
-                            xtype: 'button',
-                            text: 'Remove',
-                            listeners: {
-                                click: 'removeButtonClick'
-                            }
-                        }
-                    });
-                } else {
-                    chart = Ext.create('Ext.chart.PolarChart', {
-                        interactions: ['rotate', 'itemhighlight'],
-                        store: store,
-                        height: 400,
-                        width: 800,
-                        series: series,
-                        style:'padding-bottom:10px;',
-                        legend:{
-                            docked: 'right',
-                            scrollable: true
-                        },
-                        bbar: {
-                            xtype: 'button',
-                            text: 'Remove',
-                            listeners: {
-                                click: 'removeButtonClick'
-                            }
-                        }
-                    });
-                };       
-                //console.log(series);
-               // console.log(chart.series);
-                panel.add(chart);
-            },
-            failure: function(response) {
-                Ext.Msg.alert('Fail! Here\'s why: ' + response.responseText);
-            }
-        });
+        addChartToPanel(whatToShowValue, parameters);
+       
     },
     tooltipTestShow: function () {
         var panel = this.lookupReference('outputPanel');
@@ -635,6 +456,248 @@ Ext.define('RestTest.view.restView.RestViewController', {
     }
 
 });
+
+function addChartToPanel (whatToShowValue, parameters) {      
+    var panel = me.lookupReference('outputPanel');  
+     Ext.Ajax.request( { 
+            url: 'http://localhost:49879/SendStatistics.svc/rest/getrequest?method=' + whatToShowValue + '&' + parameters, //getpageviewsbybrowser
+            method: 'GET',
+            disableCaching: true,
+            headers: {
+                accept: 'application/json; charset=utf-8'
+            },
+            useDefaultXhrHeader: false,
+
+            success: function(response) {
+                /*var responseText = response.responseText;
+                //outputContainer.update(responseText);
+                var jsonDataObj = Ext.JSON.decode(responseText);
+                var datastore = Ext.create('Ext.data.Store', {
+                    data: jsonDataObj
+                });
+                console.log(jsonDataObj);
+                //console.log(xValue + " " + );
+                chart.bindStore(datastore);*/
+                var responseText = response.responseText;
+                var dataFromWcf;
+                try{
+                    dataFromWcf = Ext.JSON.decode(responseText);
+                    //console.log(dataFromWcf);
+                    if (typeof dataFromWcf.KeyValues[0] === 'string') { 
+                        //console.log(dataFromWcf.KeyValues[0]);
+                        //dataFromWcf.KeyValues = JSON.parse(dataFromWcf.KeyValues[0]);
+                        //console.log(dataFromWcf.KeyValues);
+                        dataFromWcf.KeyValues = Ext.JSON.decode(dataFromWcf.KeyValues[0]);
+                        console.log(dataFromWcf.KeyValues);
+                    };
+                } catch(e){
+                    console.log(e);
+                    Ext.Msg.alert(response.responseText);
+                }
+
+                console.log(dataFromWcf);
+                var store = Ext.create('Ext.data.Store',{
+                        data: dataFromWcf.KeyValues
+                    });
+                var axes = [];
+                if (dataFromWcf.Series[0].Type != 'pie') {
+                    for (var i = 0; i < dataFromWcf.Axis.length; i++) {
+                        var axis = {
+                            title: dataFromWcf.Axis[i].Title,
+                            type: dataFromWcf.Axis[i].Type,
+                            position: dataFromWcf.Axis[i].Position,
+                            fields: dataFromWcf.Axis[i].Fields
+                        };
+                        axes.push(axis);
+                    };
+                };
+                var series = [];
+
+                for (var i = 0; i < dataFromWcf.Series.length; i++) {
+                    var serie;
+                    if (dataFromWcf.Series[0].Type != 'pie') {
+                         serie = {
+                            title: dataFromWcf.Series[i].Title,
+                            type: dataFromWcf.Series[i].Type,
+                            smooth: dataFromWcf.Series[i].Smooth,
+                            xField: dataFromWcf.Series[i].XField, 
+                            yField: dataFromWcf.Series[i].YField, 
+                            marker: true,
+                            highlight: {
+                                size: 7,
+                                radius: 7
+                            },
+                            tooltip: {
+                                trackMouse: true,
+                                interactions: [{
+                                    type: 'itemhighlight'
+                                }],
+                                scope: this,
+                                renderer: function (toolTip, storeItem, item) {
+                                    toolTip.setHtml(storeItem.get('Tooltip'));
+                                }
+                            }
+                        };
+                    } else {
+                        var serie = {
+                            title: dataFromWcf.Series[i].Title,
+                            type: dataFromWcf.Series[i].Type,
+                            xField: dataFromWcf.Series[i].YField,
+                            marker: true,
+                            label:{
+                                field: dataFromWcf.Series[i].XField
+                            },
+                            highlight: true,
+                            tooltip: {
+                                trackMouse: true,
+                                interactions: [{
+                                    type: 'itemhighlight'
+                                }],
+                                scope: this,
+                                renderer: function (toolTip, storeItem, item) {
+                                    toolTip.setHtml(storeItem.get('Tooltip'));
+                                }
+                            }
+                        };
+                    };
+                   
+                    series.push(serie);
+                };
+                var listeners;
+                if (whatToShowValue === 'GetJobChainsByLongestCompletionTime' || whatToShowValue === 'GetFailedJobChains') {
+                    listeners = {
+                        itemdblclick: function(chart, item, event) {
+                            var seriesType = chart.getSeries()[0].type;
+                            var jobChainId = item.record.data.JobChainId;
+
+                            addChartToPanel('GetTimeSpentPerJob', 'parameters=seriesType=' + seriesType + '|jobChainId=' + jobChainId);
+                        }
+                    }
+                } /*else if (whatToShowValue === 'GetCompletedTypeAllocationOverTime') { //HER SKAL VI FORTSÆTTE FRA
+                    listeners = {
+                        itemdblclick: function(chart, item, event) {
+                            var seriesType = chart.getSeries()[0].type;
+                            console.log(item);
+                            
+                            //vi skal lave week og month om til date - date skal ikke kunne gå længere ned
+                            // var startDate = ...
+                            // var endDate = ...
+
+
+                            var intervalType;
+                            if (item.record.data.hasOwnProperty('day')) {
+                                //intervalType = item.record.data.day;
+                                //STOP DEN HER!!!
+                            } else if (item.record.data.hasOwnProperty('week')) {
+                                intervalType = item.record.data.week;
+                            } else if (item.record.data.hasOwnProperty('month')) {
+                                intervalType = item.record.data.month;
+                            } else {
+                                //ERROR
+                            }
+
+                            addChartToPanel('GetTimeSpentPerJob', 'parameters=seriesType=' + seriesType + '|intervalType=' + intervalType);
+                        }
+                    }
+                }*/
+                var chart;
+                if (dataFromWcf.Series[0].Type != 'pie') {
+                    chart = Ext.create('Ext.chart.CartesianChart', {
+                        plugins: {
+                            ptype: 'chartitemevents'
+                        },
+                        title: dataFromWcf.Title,
+                        store: store,
+                        height: 400,
+                        width: 800,
+                        axes:axes,
+                        series: series,
+                        interactions: 'crosszoom',
+                        style:'padding-bottom:10px;',
+                        legend:{
+                            docked: 'right',
+                            scrollable: true
+                        },
+                        interactions: {
+                            type: 'crosshair',
+                            axes: {
+                                left: {
+                                    label: {
+                                        fillStyle: 'white'
+                                    },
+                                    rect: {
+                                        fillStyle: 'brown',
+                                        radius: 6
+                                    }
+                                },
+                                bottom: {
+                                    label: {
+                                        fontSize: '14px',
+                                        fontWeight: 'bold'
+                                    }
+                                }
+                            },
+                            lines: {
+                                horizontal: {
+                                    strokeStyle: 'brown',
+                                    lineWidth: 2,
+                                    lineDash: [20, 2, 2, 2, 2, 2, 2, 2]
+                                }
+                            }
+                        },
+                        listeners: listeners,
+                        bbar: {
+                            xtype: 'button',
+                            text: 'Remove',
+                            listeners: {
+                                click: 'removeButtonClick'
+                            }
+                        },
+                        tbar: {
+                            xtype: 'button',
+                            text: 'Save chart to PNG',
+                            handler: function () {
+                                this.save({
+                                    type: 'image/png'
+                                });
+                            }
+                        }
+                    });
+                } else {
+                    chart = Ext.create('Ext.chart.PolarChart', {
+                        plugins: {
+                            ptype: 'chartitemevents'
+                        },
+                        interactions: ['rotate', 'itemhighlight'],
+                        title: dataFromWcf.Title,
+                        store: store,
+                        height: 400,
+                        width: 800,
+                        series: series,
+                        style:'padding-bottom:10px;',
+                        legend:{
+                            docked: 'right',
+                            scrollable: true
+                        },
+                        listeners: listeners,
+                        bbar: {
+                            xtype: 'button',
+                            text: 'Remove',
+                            listeners: {
+                                click: 'removeButtonClick'
+                            }
+                        }
+                    });
+                };       
+                //console.log(series);
+               // console.log(chart.series);
+                panel.add(chart);
+            },
+            failure: function(response) {
+                Ext.Msg.alert('Failed to connect to webservice.');
+            }
+        });
+}
 
 // var series = [];
 //                 for (var i = 0; i < dataFromWcf.Series.length; i++) {
