@@ -608,8 +608,8 @@ function addChartToPanel (whatToShowValue, parameters) {
                         },
                         title: dataFromWcf.Title,
                         store: store,
-                        height: 400,
-                        width: 800,
+                        height: 500,
+                        width: 900,
                         axes:axes,
                         series: series,
                         interactions: 'crosszoom',
@@ -657,8 +657,9 @@ function addChartToPanel (whatToShowValue, parameters) {
                             xtype: 'button',
                             text: 'Save chart to PNG',
                             handler: function (btn) {
-                                chart.save({
-                                    type: 'image/png'
+                              // console.log();
+                                btn.up('panel').download({
+                                    format: 'png'
                                 });
                             }
                         }
@@ -671,8 +672,8 @@ function addChartToPanel (whatToShowValue, parameters) {
                         interactions: ['rotate', 'itemhighlight'],
                         title: dataFromWcf.Title,
                         store: store,
-                        height: 400,
-                        width: 800,
+                        height: 500,
+                        width: 900,
                         series: series,
                         style:'padding-bottom:10px;',
                         legend:{
@@ -685,6 +686,16 @@ function addChartToPanel (whatToShowValue, parameters) {
                             text: 'Remove',
                             listeners: {
                                 click: 'removeButtonClick'
+                            }
+                        },
+                        tbar: {
+                            xtype: 'button',
+                            text: 'Save chart to PNG',
+                            handler: function (btn) {
+                              // console.log();
+                                btn.up('panel').download({
+                                    format: 'png'
+                                });
                             }
                         }
                     });
