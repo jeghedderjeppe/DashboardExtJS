@@ -573,33 +573,64 @@ function addChartToPanel (whatToShowValue, parameters) {
                             addChartToPanel('GetTimeSpentPerJob', 'parameters=seriesType=' + seriesType + '|jobChainId=' + jobChainId);
                         }
                     }
-                } /*else if (whatToShowValue === 'GetCompletedTypeAllocationOverTime') { //HER SKAL VI FORTSÆTTE FRA
+                } else if (whatToShowValue === 'GetCompletedTypeAllocationOverTime') { //HER SKAL VI FORTSÆTTE FRA
                     listeners = {
                         itemdblclick: function(chart, item, event) {
-                            var seriesType = chart.getSeries()[0].type;
-                            console.log(item);
-                            
-                            //vi skal lave week og month om til date - date skal ikke kunne gå længere ned
-                            // var startDate = ...
-                            // var endDate = ...
-
-
                             var intervalType;
                             if (item.record.data.hasOwnProperty('day')) {
-                                //intervalType = item.record.data.day;
-                                //STOP DEN HER!!!
+                                
                             } else if (item.record.data.hasOwnProperty('week')) {
-                                intervalType = item.record.data.week;
+                                intervalType = 'day';//item.record.data.week;
                             } else if (item.record.data.hasOwnProperty('month')) {
-                                intervalType = item.record.data.month;
+                                intervalType = 'week';//item.record.data.month;
                             } else {
                                 //ERROR
                             }
 
-                            addChartToPanel('GetTimeSpentPerJob', 'parameters=seriesType=' + seriesType + '|intervalType=' + intervalType);
+                            var seriesType = chart.getSeries()[0].type;
+
+                            var startDate = item.record.data.startDate;
+                            var endDate   = item.record.data.endDate;
+                            addChartToPanel('GetCompletedTypeAllocationOverTime', 'parameters=' +
+                                'maxResult=' + 7 +
+                                '|startDate=' + startDate +
+                                '|endDate=' + endDate +
+                                '|seriesType=' + seriesType +
+                                '|intervalType=' + intervalType
+                            );
                         }
                     }
-                }*/
+                }
+
+                // function getMonthNumber(monthName) {
+                //     switch (monthName) {
+                //         case 'januar':
+                //             return 1;
+                //         case 'februar':
+                //             return 2;
+                //         case 'marts':
+                //             return 3;
+                //         case 'april':
+                //             return 4;
+                //         case 'maj':
+                //             return 5;
+                //         case 'juni':
+                //             return 6;
+                //         case 'juli':
+                //             return 7;
+                //         case 'august':
+                //             return 8;
+                //         case 'september':
+                //             return 9;
+                //         case 'oktober':
+                //             return 10;
+                //         case 'november':
+                //             return 11;
+                //         case 'december':
+                //             return 12;
+                //     }
+                // }
+
                 var chart;
                 if (dataFromWcf.Series[0].Type != 'pie') {
                     chart = Ext.create('Ext.chart.CartesianChart', {
@@ -709,6 +740,11 @@ function addChartToPanel (whatToShowValue, parameters) {
             }
         });
 }
+
+
+
+
+
 
 // var series = [];
 //                 for (var i = 0; i < dataFromWcf.Series.length; i++) {
