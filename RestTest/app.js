@@ -9,7 +9,7 @@ Ext.application({
     extend: 'RestTest.Application',
 
     requires: [
-        'RestTest.view.main.Main'
+        'RestTest.view.restView.RestView'
     ],
 
     // The name of the initial view to create. With the classic toolkit this class
