@@ -26,3 +26,4 @@ Ext.define('RestTest.Application', {
         );
     }
 });
+

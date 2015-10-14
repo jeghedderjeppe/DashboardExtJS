@@ -1,24 +1,46 @@
 var showComboStore = Ext.create('Ext.data.Store',{
 	fields: ['show', 'abbr'],
 	data: [
-		{'show': 'Most viewed Assets',        'abbr': 'GetMostPopularAssets'},
-		{'show': 'View sessions by browser',  'abbr': 'GetSessionsByBrowser'},
-		{'show': 'View sessions by OS',       'abbr': 'GetSessionsByOS'},
-		{'show': 'View sessions by country',  'abbr': 'GetSessionsByCountry'},
-		{'show': 'View sessions by category', 'abbr': 'GetSessionsByDeviceCategory'},
-		{'show': 'View Assets by most favorized', 'abbr': 'GetMostFavorizedDummy'},
-		{'show': 'View Asset types by amount', 'abbr': 'GetAssetTypeAllocationDummy'},
-		{'show': 'View hits per milestone', 'abbr': 'GetHitsPerMilestone'},
-		{'show': 'Dropouts per milestone', 'abbr': 'GetDropoutsPerMilestone'},
-		{'show': 'Percentage finished for all videos', 'abbr': 'GetPercentageFinishedForAllVideos'},
-		{'show': 'Average percent watched', 'abbr': 'GetDropoutsPercentForAllVideos'},
+		{'show': 'GetMostPopularAssets',				'abbr': 'GetMostPopularAssets'},
+		{'show': 'GetSessionsByBrowser',				'abbr': 'GetSessionsByBrowser'},
+		{'show': 'GetSessionsByOS',						'abbr': 'GetSessionsByOS'},
+		{'show': 'GetSessionsByCountry',				'abbr': 'GetSessionsByCountry'},
+		{'show': 'GetSessionsByDeviceCategory',         'abbr': 'GetSessionsByDeviceCategory'},
+
+		{'show': 'GetMostFavorizedDummy',				'abbr': 'GetMostFavorizedDummy'},
+		{'show': 'GetAssetTypeAllocationDummy',			'abbr': 'GetAssetTypeAllocationDummy'},
+
+		{'show': 'GetHitsPerMilestone',					'abbr': 'GetHitsPerMilestone'},
+		{'show': 'GetDropoutsPerMilestone',				'abbr': 'GetDropoutsPerMilestone'},
+		{'show': 'GetPercentageFinishedForAllVideos',	'abbr': 'GetPercentageFinishedForAllVideos'},
+		{'show': 'GetDropoutsPercentForAllVideos',		'abbr': 'GetDropoutsPercentForAllVideos'},
+		
 		{'show': 'GetJobChainsByLongestCompletionTime', 'abbr': 'GetJobChainsByLongestCompletionTime'},
-		{'show': 'GetFailedJobChains', 'abbr': 'GetFailedJobChains'},
-		{'show': 'GetTimeSpentPerJob', 'abbr': 'GetTimeSpentPerJob'},
-		{'show': 'Failed Job Allocation', 'abbr': 'GetFailedJobTypeAllocation'},
-		{'show': 'GetAverageJobTimePerBatchServer', 'abbr': 'GetAverageJobTimePerBatchServer'},
-		{'show': 'GetAmountStartedForAllVideos', 'abbr': 'GetAmountStartedForAllVideos'},
-		{'show': 'GetCompletedTypeAllocationOverTime', 'abbr': 'GetCompletedTypeAllocationOverTime'}
+		{'show': 'GetFailedJobChains',                  'abbr': 'GetFailedJobChains'},
+		{'show': 'GetTimeSpentPerJob',                  'abbr': 'GetTimeSpentPerJob'},
+		{'show': 'GetFailedJobTypeAllocation',			'abbr': 'GetFailedJobTypeAllocation'},
+		{'show': 'GetAverageJobTimePerBatchServer',     'abbr': 'GetAverageJobTimePerBatchServer'},
+		{'show': 'GetAmountStartedForAllVideos',        'abbr': 'GetAmountStartedForAllVideos'},
+		{'show': 'GetCompletedTypeAllocationOverTime',  'abbr': 'GetCompletedTypeAllocationOverTime'}
+
+/*				{'show': 'Most viewed Assets',                  'abbr': 'GetMostPopularAssets'},
+		{'show': 'View sessions by browser',            'abbr': 'GetSessionsByBrowser'},
+		{'show': 'View sessions by OS',                 'abbr': 'GetSessionsByOS'},
+		{'show': 'View sessions by country',            'abbr': 'GetSessionsByCountry'},
+		{'show': 'View sessions by category',           'abbr': 'GetSessionsByDeviceCategory'},
+		{'show': 'View Assets by most favorized',       'abbr': 'GetMostFavorizedDummy'},
+		{'show': 'View Asset types by amount',          'abbr': 'GetAssetTypeAllocationDummy'},
+		{'show': 'View hits per milestone',             'abbr': 'GetHitsPerMilestone'},
+		{'show': 'Dropouts per milestone',              'abbr': 'GetDropoutsPerMilestone'},
+		{'show': 'Percentage finished for all videos',  'abbr': 'GetPercentageFinishedForAllVideos'},
+		{'show': 'Average percent watched',             'abbr': 'GetDropoutsPercentForAllVideos'},
+		{'show': 'GetJobChainsByLongestCompletionTime', 'abbr': 'GetJobChainsByLongestCompletionTime'},
+		{'show': 'GetFailedJobChains',                  'abbr': 'GetFailedJobChains'},
+		{'show': 'GetTimeSpentPerJob',                  'abbr': 'GetTimeSpentPerJob'},
+		{'show': 'Failed Job Allocation',               'abbr': 'GetFailedJobTypeAllocation'},
+		{'show': 'GetAverageJobTimePerBatchServer',     'abbr': 'GetAverageJobTimePerBatchServer'},
+		{'show': 'GetAmountStartedForAllVideos',        'abbr': 'GetAmountStartedForAllVideos'},
+		{'show': 'GetCompletedTypeAllocationOverTime',  'abbr': 'GetCompletedTypeAllocationOverTime'}*/
 	]
 });
 
@@ -85,8 +107,8 @@ Ext.define("RestTest.view.restView.RestView", {
 	items: [{
 		xtype:'panel',
 		bodyPadding: 10,
-		autoScroll:true,
-		scrollable:true,
+		autoScroll: true,
+		scrollable: true,
 		defaults: {
 			style:'padding-left:10px;'
 		},
@@ -103,94 +125,12 @@ Ext.define("RestTest.view.restView.RestView", {
 			valueField: 'abbr',
 			reference: 'whatToShowCombo',
 			width: 200
-		}, {
-			xtype: 'combo',
-			forceSelection: true,
-			emptyText:'Select graph',
-			bodyPadding: 2,
-			store: showHow,
-			displayField: 'show',
-			valueField: 'abbr',
-			reference: 'howToShowCombo',
-			width: 200
 		},{
-			xtype: 'combo',
-			forceSelection: true,
-			emptyText:'Select video',
-			bodyPadding: 2,
-			store: videos,
-			displayField: 'show',
-			valueField: 'abbr',
-			reference: 'videosCombo',
-			width: 200
-		},{
-			xtype: 'checkbox',
-			fieldLabel: 'Custom date',
-			visible: true,
-			handler: 'checkboxHandler',
-			style:'padding-right:10px;'
-		},{
-			xtype: 'combo',
-			forceSelection: true,
-			emptyText:'Select Timespan',
-			bodyPadding: 2,
-			store: datesForCombo,
-			displayField: 'show',
-			valueField: 'abbr',
-			reference: 'datesCombo',
-			width: 200
-		},{
-			xtype: 'combo',
-			forceSelection: true,
-			emptyText:'Select interval',
-			bodyPadding: 2,
-			store: intertalTypes,
-			displayField: 'show',
-			valueField: 'abbr',
-			reference: 'intervalCombo',
-			width: 200
-		},{
-			xtype: 'datepicker',
-			reference: 'startDatepicker',
-			hidden: true,
-	        maxDate: new Date(),
-	        handler: function(picker, date) {
-	            globalStartDate = new Date(date.setDate(date.getDate() +1)).toJSON().split('T')[0];
-	        }
-		},{
-			xtype: 'datepicker',
-			reference: 'endDatepicker',
-			hidden: true,
-	        maxDate: new Date(),
-	        handler: function(picker, date) {
-	            globalEndDate = new Date(date.setDate(date.getDate() +1)).toJSON().split('T')[0];
-	        }
-		}, {
-			xtype: 'textfield',
-			fieldLabel: 'Job chain ID',
-			reference: 'jobChainIdTextField'
-		}, {
-			xtype: 'textfield',
-			fieldLabel: 'Max results',
-			reference: 'maxResultTextField'
-		}, {
 			xtype: 'button',
 			text: 'Show stats',
 			listeners:{
 				click: 'onShowButtonClick'
 			}
-		// }, {
-		// 	xtype: 'button',
-		// 	text: 'Show testChart',
-		// 	listeners:{
-		// 		click: 'showTestChart'
-		// 	}
-		// }, {
-		// 	xtype: 'button',
-		// 	text: 'Tooltip Test',
-		// 	listeners:{
-		// 		click: 'tooltipTestShow'
-		// 	}
 		}]
 	},{
 		xtype: 'panel',
@@ -204,11 +144,7 @@ Ext.define("RestTest.view.restView.RestView", {
 					width: '100%'
 				}
 			}
-		}/*,
-		items:[{
-			xtype: 'jeppes-multi-chart'
-		}]*/
-		
+		}		
 	}]
 });
 
