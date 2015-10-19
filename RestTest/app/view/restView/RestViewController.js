@@ -15,10 +15,20 @@ Ext.define('RestTest.view.restView.RestViewController', {
     onShowButtonClick: function() {
         me = this;
         var whatToShowValue = this.lookupReference('whatToShowCombo').getValue();
-        var label = function(v) {
-            return v
+        // var label = function(v) {
+        //     return v
+        // };
+
+        var parameters;
+        var JobChainIdTextfield = this.lookupReference('JobChainIdTextfield')
+        var itemIdTextfield = this.lookupReference('itemIdTextfield')
+        if (JobChainIdTextfield) {
+            parameters = 'parameters=jobChainId=' + JobChainIdTextfield.getValue();
+
+        } else if (itemIdTextfield) {
+            parameters = 'parameters=itemId=' + itemIdTextfield.getValue();        
         };
-        addChartToPanel(whatToShowValue);
+        addChartToPanel(whatToShowValue, parameters); //whatToShowValue, parameters, position
 
         var inputPanel = this.lookupReference('inputPanel');
         if (inputPanel.items.items.length === 3) {
@@ -31,10 +41,11 @@ Ext.define('RestTest.view.restView.RestViewController', {
         var inputPanel = this.lookupReference('inputPanel');
         var showStatsButton = inputPanel.down('button');
 
-        if (combo.getValue() === 'GetTimeSpentPerJob') {
-
+        var comboValue = combo.getValue();
+        if (comboValue === 'GetTimeSpentPerJob') {
             inputPanel.insert(1, Ext.create('Ext.form.field.Text', {
                 emptyText: 'Job Chain ID',
+                reference: 'JobChainIdTextfield',
                 listeners: {
                     change: function(this2, newValue2, oldValue2, eOpts2) {
                         if (parseInt(newValue2) > 0)
@@ -45,9 +56,21 @@ Ext.define('RestTest.view.restView.RestViewController', {
                 }
             }));
             showStatsButton.setDisabled(true);
+        } else if (comboValue === 'GetHitsPerMilestone' || comboValue === 'GetDropoutsPerMilestone') {
+            inputPanel.insert(1, Ext.create('Ext.form.field.Text', {
+                emptyText: 'Item ID',
+                reference: 'itemIdTextfield',
+                listeners: {
+                    change: function(this2, newValue2, oldValue2, eOpts2) {
+                        if (parseInt(newValue2) > 0)
+                            showStatsButton.setDisabled(false);
+                        else
+                            showStatsButton.setDisabled(true);
+                    }
+                }
+            }));
         } else {
             if (inputPanel.items.items.length === 3) {
-                console.log("lol");
                 inputPanel.items.items[1].destroy();
                 showStatsButton.setDisabled(false);
             }

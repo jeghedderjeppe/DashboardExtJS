@@ -89,10 +89,8 @@ Ext.define('RestTest.view.chartView.ChartViewController', {
         var itemsArray = [];
         for (var i in items) 
             itemsArray.push(items[i].id);
-        chart.destroy();
-
         var positionInPanel = itemsArray.indexOf(chart.id); //Kunne gøres bedre
-        addChartToPanel(chart.method, parameters, positionInPanel);
+        addChartToPanel(chart.method, parameters, positionInPanel, chart);
     },
 
     serializeParams: function(params) {
@@ -165,6 +163,7 @@ Ext.define('RestTest.view.chartView.ChartViewController', {
         date.setMonth(date.getMonth() - 1);
         datepicker.setValue(new Date(date));
     },
+    
     endDateSelected: function(datepicker, selectedDate, eOpts){
         var startDatepicker = this.lookupReference('startDatepicker');
         startDatepicker.maxDate = new Date(selectedDate);
@@ -173,6 +172,34 @@ Ext.define('RestTest.view.chartView.ChartViewController', {
 
             startDatepicker.setValue(selectedDate);
         };        
+    },
+
+    maxResultChange: function(textfield, newValue, oldValue, eOpts){
+        var chart = textfield.up().up().up().up();
+        var method = chart.method;
+        var parameters = parseParamsToArray(chart.parameters);
+        parameters['maxResult'] = newValue;
+        parameters = this.serializeParams(parameters);
+        Ext.Ajax.request({
+        url: 'http://localhost:49879/SendStatistics.svc/rest/getrequest?method=' + method + '&' + parameters, //getpageviewsbybrowser
+        method: 'GET',
+        disableCaching: true,
+        headers: {
+            accept: 'application/json; charset=utf-8'
+        },
+        useDefaultXhrHeader: false,
+
+        success: function(response) {
+            var dataFromWcf = Ext.JSON.decode(response.responseText);
+            chart.setStore(Ext.create('Ext.data.Store', {
+                data: dataFromWcf.KeyValues
+            }));
+            chart.redraw();
+        },
+        failure: function(response) {
+            
+        }
+    });
     }
 });
 
@@ -188,11 +215,7 @@ function parseParamsToArray(parameters) {
 };
 
 var groupCounter = 0;
-var globalaxes;
-var globalseries;
-var globallisteners;
-var globaltoolbar;
-function addChartToPanel(whatToShowValue, parameters, position) {
+function addChartToPanel(whatToShowValue, parameters, position, chartToBeDestroyed) {
     var panel = me.lookupReference('outputPanel');
     if (typeof position === "undefined") {
         position = 0;
@@ -233,6 +256,7 @@ function addChartToPanel(whatToShowValue, parameters, position) {
             var store = Ext.create('Ext.data.Store', {
                 data: dataFromWcf.KeyValues
             });
+            console.log(1, parameters);
             if (parameters !== undefined) 
                 parsedParameters = parseParamsToArray(parameters);
             var axes = getAxis(dataFromWcf);
@@ -264,6 +288,8 @@ function addChartToPanel(whatToShowValue, parameters, position) {
                 });
             };
             panel.insert(position, chart);
+            if (chartToBeDestroyed) 
+                chartToBeDestroyed.destroy();
         },
         failure: function(response) {
             if (response.text) {
@@ -399,8 +425,18 @@ function addChartToPanel(whatToShowValue, parameters, position) {
         itemId          = parameters['itemId'];
 
         var tbar = {
+            text: 'Filters',
+            xtype: 'button',
+            ctCls: 'x-btn-over',
             scrollable: true,
-            items: []
+            menu: {
+                items: []
+            }
+        };
+
+        var returnTbar = {
+
+            items: ['->',tbar]
         };
 
         //Chart type
@@ -435,7 +471,7 @@ function addChartToPanel(whatToShowValue, parameters, position) {
                     break;
                 };
             };
-            tbar.items.push(seriesTypeMenu);
+            returnTbar.items.push(seriesTypeMenu);
         };
 
         //Max results
@@ -444,11 +480,12 @@ function addChartToPanel(whatToShowValue, parameters, position) {
                 xtype: 'textfield',
                 fieldLabel: 'Max results',
                 reference: 'maxResultTextField',
-                value: maxResult//,
-                //maxWidth: '100',
-                //labelWidth: '40'
+                value: maxResult,
+                listeners: {
+                    change: 'maxResultChange'
+                }
             };
-            tbar.items.push(maxResultTextField);
+            tbar.menu.items.push(maxResultTextField);
         };
 
         //Time interval (Day, week, month)
@@ -485,7 +522,7 @@ function addChartToPanel(whatToShowValue, parameters, position) {
                     break;
                 };
             };
-            tbar.items.push(timeIntervalCombo);
+            tbar.menu.items.push(timeIntervalCombo);
         }
 
         //Item ID
@@ -496,7 +533,7 @@ function addChartToPanel(whatToShowValue, parameters, position) {
                 reference: 'itemIdTextField',
                 value: itemId
             }
-            tbar.items.push(ItemIdAlt);
+            tbar.menu.items.push(ItemIdAlt);
         };
 
         // //Job chain ID
@@ -569,19 +606,19 @@ function addChartToPanel(whatToShowValue, parameters, position) {
                     }]
                 }
             }
-            tbar.items.push(timeToChoose);
+            tbar.menu.items.push(timeToChoose);
         };
 
 
         //Remove
-        var removeButton = {
-            xtype: 'button',
-            text: 'Remove',
-            listeners: {
-                click: 'removeButtonClick'
-            }
-        }
-        tbar.items.push(removeButton);
+        // var removeButton = {
+        //     xtype: 'button',
+        //     text: 'Remove',
+        //     listeners: {
+        //         click: 'removeButtonClick'
+        //     }
+        // }
+        // tbar.menu.items.push(removeButton);
 
         //Save chart as image
         var saveChartButton = {
@@ -589,12 +626,10 @@ function addChartToPanel(whatToShowValue, parameters, position) {
             text: 'Save chart to PNG',
             region: 'east',
             handler: function(btn) {
-                btn.up('panel').download({
-                    format: 'png'
-                });
+                btn.up().up().preview();
             }
         }
-        tbar.items.push(saveChartButton);
+        tbar.menu.items.push(saveChartButton);
 
         //Update
         var updateButton = {
@@ -602,8 +637,10 @@ function addChartToPanel(whatToShowValue, parameters, position) {
             text: 'Update',
             handler: 'updateChart'
         }
-        tbar.items.push(updateButton);
-        return tbar;
+        returnTbar.items.push(updateButton);
+
+        console.log(tbar);
+        return returnTbar;
     }
 }
 
