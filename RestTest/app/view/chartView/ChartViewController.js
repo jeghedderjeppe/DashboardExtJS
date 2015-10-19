@@ -69,10 +69,14 @@ Ext.define('RestTest.view.chartView.ChartViewController', {
         if (parseInt(maxResult) > 0)
             parameters['maxResult'] = maxResult;
         parameters['intervalType'] = chosenInterval;
-        var startDate = this.lookupReference('startDatepicker').getValue().toJSON();
-        parameters['startDate'] = startDate;
-        var endDate = this.lookupReference('endDatepicker').getValue().toJSON();
-        parameters['endDate'] = endDate;
+
+        var startDateComponent = this.lookupReference('startDatepicker');
+        var endDateComponent = this.lookupReference('endDatepicker');
+        if (startDateComponent != null || endDateComponent != null) {
+            parameters['startDate'] = startDateComponent.getValue().toJSON();
+            parameters['endDate'] = endDateComponent.getValue().toJSON();
+        };
+
         if (parseInt(jobChainId) > 0)
             parameters['jobChainId'] = jobChainId;
         if (parseInt(itemId) > 0)
@@ -159,7 +163,6 @@ Ext.define('RestTest.view.chartView.ChartViewController', {
     addedStartDate: function(datepicker, container, pos, eOpts){
         var date = new Date();
         date.setMonth(date.getMonth() - 1);
-        console.log('eOpts', eOpts);
         datepicker.setValue(new Date(date));
     },
     endDateSelected: function(datepicker, selectedDate, eOpts){
@@ -237,24 +240,8 @@ function addChartToPanel(whatToShowValue, parameters, position) {
             var listeners = getListeners(dataFromWcf, whatToShowValue);
             var toolbar = getTbar(whatToShowValue, parsedParameters);
 
-            console.log('axis', axes);
-            console.log('series', series);
-            console.log('listeners', listeners);
-            console.log('tbar', toolbar);
-            var globalaxes = axes;
-            var globalseries = series;
-            var globallisteners = listeners;
-            var globaltoolbar = toolbar;
-            var seriesType = dataFromWcf.Series[0].Type;
-            var parsedParameters;
-            
-           
-
             var chart;
             if (dataFromWcf.Series[0].Type != 'pie') {
-                console.log('just before chart is created');
-                console.log("params", dataFromWcf);
-                console.log("lulz", parameters);
                 chart = Ext.create('RestTest.view.chartView.CartesianChartView', {
                     title: dataFromWcf.Title,
                     store: store,
@@ -265,19 +252,17 @@ function addChartToPanel(whatToShowValue, parameters, position) {
                     method: whatToShowValue,
                     tbar: toolbar
                 });
-                console.log('just after chart is created');
             } else {
                 chart = Ext.create('RestTest.view.chartView.PolarChartView', {
                     title: dataFromWcf.Title,
                     store: store,
-                    // series: series,
+                    series: series,
                     listeners: listeners,
-                    // parameters: parameters,
-                    // method: whatToShowValue,
-                    // tbar: toolbar
+                    parameters: parameters,
+                    method: whatToShowValue,
+                    tbar: toolbar
                 });
             };
-            console.log('just before chart is added to panel');
             panel.insert(position, chart);
         },
         failure: function(response) {
@@ -527,63 +512,66 @@ function addChartToPanel(whatToShowValue, parameters, position) {
         // console.log("jobcahin id", jobChainId);
 
         //Timespan
-        var timeToChoose = {
-            xtype: 'button',
-            text: 'Select timespan',
-            menu: {
-                items: [{
-                    text: 'Pick a timespan',
-                    menu: {
-                        items: {
-                            xtype: 'combo',
-                            forceSelection: true,
-                            emptyText: 'Select date',
-                            multiSelect: false,
-                            bodyPadding: 2,
-                            store: datesForCombo,
-                            displayField: 'show',
-                            valueField: 'abbr',
-                            reference: 'datesCombo',
-                            width: 200,
-                            listeners: {
-                                select: 'selectionChanged'
-                            }
-                        }
-                    }
-                }, '-', {
-                    text: 'Choose start date',
-                    menu: {
-                        items: {
-                            xtype: 'datepicker',
-                            reference: 'startDatepicker',
-                            maxDate: new Date(),
-                            listeners: {
-                                added: function(datepicker, container, pos, eOpts){
-                                    datepicker.setValue(new Date(parameters['startDate']));
+        if (whatToShowValue !== 'GetTimeSpentPerJob') {
+            var timeToChoose = {
+                xtype: 'button',
+                text: 'Select timespan',
+                menu: {
+                    items: [{
+                        text: 'Pick a timespan',
+                        menu: {
+                            items: {
+                                xtype: 'combo',
+                                forceSelection: true,
+                                emptyText: 'Select date',
+                                multiSelect: false,
+                                bodyPadding: 2,
+                                store: datesForCombo,
+                                displayField: 'show',
+                                valueField: 'abbr',
+                                reference: 'datesCombo',
+                                width: 200,
+                                listeners: {
+                                    select: 'selectionChanged'
                                 }
                             }
                         }
-                    }
-                }, {
-                    text: 'Choose end date',
-                    menu: {
-                        items: {
-                            xtype: 'datepicker',
-                            reference: 'endDatepicker',
-                            maxDate: new Date(),
-                            listeners: {
-                                added: function(datepicker, container, pos, eOpts){
-                                    datepicker.setValue(new Date(parameters['endDate']));
-                                    datepicker.up();
-                                },
-                                select: 'endDateSelected'
+                    }, '-', {
+                        text: 'Choose start date',
+                        menu: {
+                            items: {
+                                xtype: 'datepicker',
+                                reference: 'startDatepicker',
+                                maxDate: new Date(),
+                                listeners: {
+                                    added: function(datepicker, container, pos, eOpts){
+                                        datepicker.setValue(new Date(parameters['startDate']));
+                                    }
+                                }
                             }
                         }
-                    }
-                }]
+                    }, {
+                        text: 'Choose end date',
+                        menu: {
+                            items: {
+                                xtype: 'datepicker',
+                                reference: 'endDatepicker',
+                                maxDate: new Date(),
+                                listeners: {
+                                    added: function(datepicker, container, pos, eOpts){
+                                        datepicker.setValue(new Date(parameters['endDate']));
+                                        datepicker.up();
+                                    },
+                                    select: 'endDateSelected'
+                                }
+                            }
+                        }
+                    }]
+                }
             }
-        }
-        tbar.items.push(timeToChoose);
+            tbar.items.push(timeToChoose);
+        };
+
 
         //Remove
         var removeButton = {
@@ -615,7 +603,6 @@ function addChartToPanel(whatToShowValue, parameters, position) {
             handler: 'updateChart'
         }
         tbar.items.push(updateButton);
-        console.log('just before return of tbar');
         return tbar;
     }
 }
