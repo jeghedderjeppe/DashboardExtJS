@@ -106,6 +106,7 @@ Ext.define("RestTest.view.restView.RestView", {
 	scrollable:true,
 	items: [{
 		xtype:'panel',
+		reference: 'inputPanel',
 		bodyPadding: 10,
 		autoScroll: true,
 		scrollable: true,
@@ -124,7 +125,10 @@ Ext.define("RestTest.view.restView.RestView", {
 			displayField: 'show',
 			valueField: 'abbr',
 			reference: 'whatToShowCombo',
-			width: 200
+			width: 200,
+			listeners:{
+			    select: 'selectHandler'
+			}
 		},{
 			xtype: 'button',
 			text: 'Show stats',

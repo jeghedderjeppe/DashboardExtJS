@@ -7,32 +7,55 @@ Ext.define('RestTest.view.restView.RestViewController', {
     alias: 'controller.restview',
     controller: 'chartview',
 
-    requires: [
-        'Ext.chart.interactions.Rotate',
-        'Ext.chart.series.Pie',
-        'Ext.chart.series.Area',
-        'Ext.chart.interactions.CrossZoom',
-        'Ext.chart.interactions.Crosshair',
-        'Ext.chart.interactions.ItemHighlight',
-        'RestTest.view.chartView.CartesianChartView',
-        'Ext.chart.axis.Numeric',
-        'Ext.chart.axis.Category',
-        'Ext.chart.series.Line',
-        'Ext.chart.series.Bar',
+   requires: [
+        
         'RestTest.view.chartView.ChartViewController'
     ],
-    checkboxHandler: function (checkbox, checked) {
-        // var startDatepicker = this.lookupReference('startDatepicker');
-        // var endDatepicker = this.lookupReference('endDatepicker');
-        // var dateCombo = this.lookupReference('datesCombo');
-        // dateCombo.setHidden(checked);
-        // startDatepicker.setVisible(checked);
-        // endDatepicker.setVisible(checked);
-        // isCustomDate = checked;
-    },
+
     onShowButtonClick: function() {
         me = this;
-        function getDatetime(valueFromDatesCombo) {
+        var whatToShowValue = this.lookupReference('whatToShowCombo').getValue();
+        var label = function(v) {
+            return v
+        };
+        addChartToPanel(whatToShowValue);
+
+        var inputPanel = this.lookupReference('inputPanel');
+        if (inputPanel.items.items.length === 3) {
+            inputPanel.items.items[1].destroy();
+            inputPanel.down('button').setDisabled(false);
+        }
+    },
+
+    selectHandler: function(combo, record, eOpts) {
+        var inputPanel = this.lookupReference('inputPanel');
+        var showStatsButton = inputPanel.down('button');
+
+        if (combo.getValue() === 'GetTimeSpentPerJob') {
+
+            inputPanel.insert(1, Ext.create('Ext.form.field.Text', {
+                emptyText: 'Job Chain ID',
+                listeners: {
+                    change: function(this2, newValue2, oldValue2, eOpts2) {
+                        if (parseInt(newValue2) > 0)
+                            showStatsButton.setDisabled(false);
+                        else
+                            showStatsButton.setDisabled(true);
+                    }
+                }
+            }));
+            showStatsButton.setDisabled(true);
+        } else {
+            if (inputPanel.items.items.length === 3) {
+                console.log("lol");
+                inputPanel.items.items[1].destroy();
+                showStatsButton.setDisabled(false);
+            }
+        }
+    }
+});
+
+/*function getDatetime(valueFromDatesCombo) {
             var date = new Date();
             switch (valueFromDatesCombo) {
                 case "zeroDay":
@@ -73,60 +96,37 @@ Ext.define('RestTest.view.restView.RestViewController', {
             }
             return new Date(date).toJSON().split("T")[0];
         }
+        var datesChosen = this.lookupReference('datesCombo');
+        var whatToShowCombo = this.lookupReference('whatToShowCombo');
+        var howToShowCombo = this.lookupReference('howToShowCombo');
+        var maxResult = this.lookupReference('maxResultTextField').getValue();
+        var videoToShowStats = this.lookupReference('videosCombo').getValue();
+        */
+/*        switch (whatToShowValue) {
+    case 'GetHitsPerMilestone':
+        parameters += '|itemId=' + videoToShowStats;
+        break;
+    case 'GetDropoutsPerMilestone':
+        parameters += '|itemId=' + videoToShowStats;
+        break;
+    case 'GetDropoutsPercentForAllVideos':
+        label = function(v) { return v + '%'; };
+        parameters += '|itemId=' + videoToShowStats;
+        break;
+     case 'GetTimeSpentPerJob':
+        parameters += '|jobChainId=' + this.lookupReference('jobChainIdTextField').getValue();;
+        break;
+    case 'GetCompletedTypeAllocationOverTime':
+        parameters += ' |intervalType='+this.lookupReference('intervalCombo').getValue();
+        break;
+    default:
+        yAxisName = 'Error';
+        xAxisName = 'Error';
+        title = 'Error';
+}
+console.log(parameters + "  " + whatToShowValue);*/
 
-        // var datesChosen = this.lookupReference('datesCombo');
-        
-        // var whatToShowCombo = this.lookupReference('whatToShowCombo');
-        // var howToShowCombo = this.lookupReference('howToShowCombo');
-        // var maxResult = this.lookupReference('maxResultTextField').getValue();
-        // var videoToShowStats = this.lookupReference('videosCombo').getValue();
-        
-        var whatToShowValue = this.lookupReference('whatToShowCombo').getValue();
-        // var howToShowValue = howToShowCombo.getValue();
-        // // var chosenDay = datesChosen.getValue();
-        
-        // var startDate, endDate;
-        // if (isCustomDate) {
-        //     startDate = globalStartDate;
-        //     endDate = globalEndDate;
-        // } else {
-        //     startDate = getDatetime(chosenDay);
-        //     endDate = new Date().toJSON().split('T')[0];
-        // };
-        // if (!maxResult) {
-        //     maxResult = 25;
-        // };
-        // if (howToShowValue === 'null' || !howToShowValue) {
-        //     howToShowValue = 'line';
-        // };
+/*        var howToShowValue = howToShowCombo.getValue();
+// var chosenDay = datesChosen.getValue();
 
-        //var parameters = 'parameters=maxResult='+maxResult;//+'|startDate='+startDate+"|endDate="+endDate+'|seriesType='+howToShowValue;
-        var label = function(v) { return v };
-
-        // switch (whatToShowValue) {
-        //     case 'GetHitsPerMilestone':
-        //         parameters += '|itemId=' + videoToShowStats;
-        //         break;
-        //     case 'GetDropoutsPerMilestone':
-        //         parameters += '|itemId=' + videoToShowStats;
-        //         break;
-        //     case 'GetDropoutsPercentForAllVideos':
-        //         label = function(v) { return v + '%'; };
-        //         parameters += '|itemId=' + videoToShowStats;
-        //         break;
-        //      case 'GetTimeSpentPerJob':
-        //         parameters += '|jobChainId=' + this.lookupReference('jobChainIdTextField').getValue();;
-        //         break;
-        //     case 'GetCompletedTypeAllocationOverTime':
-        //         parameters += ' |intervalType='+this.lookupReference('intervalCombo').getValue();
-        //         break;
-        //     default:
-        //         yAxisName = 'Error';
-        //         xAxisName = 'Error';
-        //         title = 'Error';
-        // }
-        // console.log(parameters + "  " + whatToShowValue);
-        addChartToPanel(whatToShowValue);
-       
-    }
-});
+var parameters = 'parameters=maxResult='+maxResult;//+'|startDate='+startDate+"|endDate="+endDate+'|seriesType='+howToShowValue;*/
