@@ -1,101 +1,67 @@
 Ext.define('RestTest.view.chartView.ChartViewController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.chartview',
-     requires: [
-        'Ext.chart.interactions.Rotate',
-        'Ext.chart.series.Pie',
-        'Ext.chart.series.Area',
-        'Ext.chart.interactions.CrossZoom',
-        'Ext.chart.interactions.Crosshair',
-        'Ext.chart.interactions.ItemHighlight',
-        'RestTest.view.chartView.CartesianChartView',
-        'Ext.chart.axis.Numeric',
-        'Ext.chart.axis.Category',
-        'Ext.chart.series.Line',
-        'Ext.chart.series.Bar'
-    ],
+
     updateChart: function(button) {
-        var toolbar = button.up();
-        var chart = toolbar.up();
+        var chart = button.up().up();
+        var maxResult = this.lookupReference('maxResultTextField').getValue();
+        console.log(maxResult);
+        var parameters = chart.parameters; 
+        if (parameters) {
+            parameters = this.parseParamsToArray(chart.parameters);
+            for (var i = 0; i < parameters.length; i++) {
+                if (parameters[i].key == 'seriesType')
+                    parameters[i].value = chosenSeriesType;
+                if (parseInt(maxResult) > 0 && parameters[i].key == 'maxResult')
+                	parameters[i].value = maxResult;
+            };
+            if (typeof parameters['maxResult'] == 'undefined') 
+            	parameters['maxResult'] = maxResult;
 
-        //Set Max Result
-        var maxResultTextField = this.lookupReference('maxResultTextField');
-        var maxResult;
-        if (maxResultTextField == null)
-            maxResult = 999;
-        else
-            maxResult = maxResultTextField.getValue();
-
-        //Set Job Chain Id
-        var jobChainIdTextField = this.lookupReference('jobChainIdTextField');
-        var jobChainId;
-        if (jobChainIdTextField == null)
-            jobChainId = 50974;
-        else
-            jobChainId = jobChainIdTextField.getValue();
-
-        //Set ItemId
-        var itemIdTextField = this.lookupReference('itemIdTextField');
-        var itemId;
-        if (itemIdTextField == null)
-            itemId = 50974;
-        else
-            itemId = itemIdTextField.getValue();
-        
-        //Set seriesType
-        var chosenSeriesType = 'line';
-        chartTypeMenu = this.lookupReference('chartTypeMenu');
-        if (chartTypeMenu != null) {
-            var chartTypeButtons = chartTypeMenu.items.items;
-            for (var i = 0; i < chartTypeButtons.length; i++)
-                if (chartTypeButtons[i].checked === true)
-                    chosenSeriesType = chartTypeButtons[i].seriesType;
-        };
-
-        //Set Interval
-        var chosenInterval = 'month';
-        intervalMenu = this.lookupReference('intervalMenu');
-        if (intervalMenu != null) {
-            var intervalButtons = intervalMenu.items.items;
-            for (var i = 0; i < intervalButtons.length; i++)
-                if (intervalButtons[i].checked === true)
-                    chosenInterval = intervalButtons[i].interval;
-        };
-
-        //Add to parameters
-        var parameters = chart.parameters;
-        parameters = parseParamsToArray(chart.parameters);
-        parameters['seriesType'] = chosenSeriesType;
-        if (parseInt(maxResult) > 0)
-            parameters['maxResult'] = maxResult;
-        parameters['intervalType'] = chosenInterval;
-        var startDate = this.lookupReference('startDatepicker').getValue().toJSON();
-        parameters['startDate'] = startDate;
-        var endDate = this.lookupReference('endDatepicker').getValue().toJSON();
-        parameters['endDate'] = endDate;
-        if (parseInt(jobChainId) > 0)
-            parameters['jobChainId'] = jobChainId;
-        if (parseInt(itemId) > 0)
-            parameters['itemId'] = itemId;
-
-        parameters = this.serializeParams(parameters);
+            parameters = this.serializeParams(parameters);
+            var test = chosenSeriesType;
+        } else 
+        	parameters = 'parameters=' +
+        	    'seriesType=' + chosenSeriesType +
+        	    '|maxResult=' + 10 +
+        	    '|startDate' + DateTime.Now.AddDays(-30).ToString("yyyy-MM-dd") +
+        	    '|endDate' + DateTime.Now.ToString("yyyy-MM-dd") +
+        	    '|jobChainId' + 50974 +
+        	    '|intervalType' + 'month';
+        	    //FIX IMORGEN
 
         var panel = chart.up('panel');
         var items = panel.items.items;
         var itemsArray = [];
-        for (var i in items) 
+        for (var i in items) {
             itemsArray.push(items[i].id);
+        }
         chart.destroy();
 
-        var positionInPanel = itemsArray.indexOf(chart.id); //Kunne gøres bedre
+        var positionInPanel = itemsArray.indexOf(chart.id);
+        console.log(parameters);
         addChartToPanel(chart.method, parameters, positionInPanel);
     },
 
-    serializeParams: function(params) {
-        var paramsSerialized = 'parameters=';
-        for (var i in params) 
-            paramsSerialized += i +'='+params[i]+'|';
+    parseParamsToArray: function(parameters) {
+        parameters = parameters.replace('parameters=', '');
+        var parametersArray = parameters.split('|');
+        var parametersArray2 = [];
+        for (var i in parametersArray) {
+            var parameterKeyValue = parametersArray[i].split('=');
+            var tempVar = {};
+            tempVar.key = parameterKeyValue[0];
+            tempVar.value = parameterKeyValue[1];
+            parametersArray2.push(tempVar);
+        }
+        return parametersArray2;
+    },
 
+    serializeParams: function(params) {
+        var paramsSerialized = 'parameters='
+        for (var i = 0; i < params.length; i++) {
+            paramsSerialized += params[i]['key'] + '=' + params[i]['value'] + '|';
+        };
         paramsSerialized = paramsSerialized.substring(0, paramsSerialized.length - 1);
         return paramsSerialized;
     },
@@ -105,109 +71,19 @@ Ext.define('RestTest.view.chartView.ChartViewController', {
         chart.destroy();
     },
 
-    selectionChanged: function(combo, record, eOpts){
-        choseTimePeriod = combo.getValue();
-
-        var startDate = getDatetime(choseTimePeriod);
-        var endDate = new Date();
-
-        this.lookupReference('startDatepicker').setValue(startDate);
-        this.lookupReference('endDatepicker').setValue(endDate);
-        function getDatetime(valueFromDatesCombo) {
-            var date = new Date();
-            switch (valueFromDatesCombo) {
-                case "zeroDay":
-                    date = date.setDate(date.getDate());
-                    break;
-                case "oneDay":
-                    date = date.setDate(date.getDate() - 1);
-                    break;
-                case "threeDay":
-                    date = date.setDate(date.getDate() - 3);
-                    break;
-                case "oneWeek":
-                    date = date.setDate(date.getDate() - 7);
-                    break;
-                case "twoWeek":
-                    date = date.setDate(date.getDate() - 14);
-                    break;
-                case "threeWeek":
-                    date = date.setDate(date.getDate() - 21);
-                    break;
-                case "fourWeek":
-                    date = date.setDate(date.getDate() - 28);
-                    break;
-                case "oneMonth":
-                    date = date.setMonth(date.getMonth() - 1);
-                    break;
-                case "twoMonth":
-                    date = date.setMonth(date.getMonth() - 2);
-                    break;
-                case "threeMonth":
-                    date = date.setMonth(date.getMonth() - 3);
-                    break;
-                case "fourMonth":
-                    date = date.setMonth(date.getMonth() - 4);
-                    break;
-                default:
-                    date = date.setMonth(date.getMonth() - 1);
-            }
-            return new Date(date);
-        }
-    },
-
-    addedStartDate: function(datepicker, container, pos, eOpts){
-        var date = new Date();
-        date.setMonth(date.getMonth() - 1);
-        console.log('eOpts', eOpts);
-        datepicker.setValue(new Date(date));
-    },
-    endDateSelected: function(datepicker, selectedDate, eOpts){
-        var startDatepicker = this.lookupReference('startDatepicker');
-        startDatepicker.maxDate = new Date(selectedDate);
-        startDateValue = startDatepicker.getValue();
-        if (startDateValue > selectedDate) {
-
-            startDatepicker.setValue(selectedDate);
-        };        
+    onChartTypeCheck: function(item, checked) {
+        // console.log(item, checked);
+        chosenSeriesType = item.id;
     }
 });
+var chosenSeriesType = 'line';
 
-function parseParamsToArray(parameters) {
-    parameters = parameters.replace('parameters=', '');
-    var parametersArray = parameters.split('|');
-    var paramsObj = {};
-    for (var i in parametersArray) {
-        var parameterKeyValue = parametersArray[i].split('=');
-        paramsObj[parameterKeyValue[0]] = parameterKeyValue[1];
-    }    
-    return paramsObj;
-};
-
-var groupCounter = 0;
-var globalaxes;
-var globalseries;
-var globallisteners;
-var globaltoolbar;
 function addChartToPanel(whatToShowValue, parameters, position) {
     var panel = me.lookupReference('outputPanel');
     if (typeof position === "undefined") {
         position = 0;
     };
-
-    if (!parameters) {
-        var startDate = new Date().setMonth(new Date().getMonth() - 1);
-        var endDate = new Date().setDate(new Date().getDate());
-
-        parameters = 'parameters=' +
-            'seriesType=line' +
-            '|maxResult=' + 999 +
-            '|startDate=' + new Date(startDate).toJSON()+
-            '|endDate=' + new Date(endDate).toJSON()+
-            '|jobChainId=' + 50974 +
-            '|itemId=' + 132 +
-            '|intervalType=' + 'month';
-    };
+    
     Ext.Ajax.request({
         url: 'http://localhost:49879/SendStatistics.svc/rest/getrequest?method=' + whatToShowValue + '&' + parameters, //getpageviewsbybrowser
         method: 'GET',
@@ -222,39 +98,25 @@ function addChartToPanel(whatToShowValue, parameters, position) {
             var dataFromWcf;
             try {
                 dataFromWcf = Ext.JSON.decode(responseText);
-                if (typeof dataFromWcf.KeyValues[0] === 'string') 
+                if (typeof dataFromWcf.KeyValues[0] === 'string') {
                     dataFromWcf.KeyValues = Ext.JSON.decode(dataFromWcf.KeyValues[0]);
+                    console.log(dataFromWcf.KeyValues);
+                };
             } catch (e) {
+                console.log(e);
                 Ext.Msg.alert('Alert!', responseText);
             }
+
+            console.log(dataFromWcf);
             var store = Ext.create('Ext.data.Store', {
                 data: dataFromWcf.KeyValues
             });
-            if (parameters !== undefined) 
-                parsedParameters = parseParamsToArray(parameters);
             var axes = getAxis(dataFromWcf);
             var series = getSeries(dataFromWcf);
             var listeners = getListeners(dataFromWcf, whatToShowValue);
-            var toolbar = getTbar(whatToShowValue, parsedParameters);
-
-            console.log('axis', axes);
-            console.log('series', series);
-            console.log('listeners', listeners);
-            console.log('tbar', toolbar);
-            var globalaxes = axes;
-            var globalseries = series;
-            var globallisteners = listeners;
-            var globaltoolbar = toolbar;
-            var seriesType = dataFromWcf.Series[0].Type;
-            var parsedParameters;
-            
-           
-
+            var toolbar = getTbar(whatToShowValue);
             var chart;
             if (dataFromWcf.Series[0].Type != 'pie') {
-                console.log('just before chart is created');
-                console.log("params", dataFromWcf);
-                console.log("lulz", parameters);
                 chart = Ext.create('RestTest.view.chartView.CartesianChartView', {
                     title: dataFromWcf.Title,
                     store: store,
@@ -265,20 +127,21 @@ function addChartToPanel(whatToShowValue, parameters, position) {
                     method: whatToShowValue,
                     tbar: toolbar
                 });
-                console.log('just after chart is created');
             } else {
                 chart = Ext.create('RestTest.view.chartView.PolarChartView', {
                     title: dataFromWcf.Title,
                     store: store,
-                    // series: series,
+                    series: series,
                     listeners: listeners,
-                    // parameters: parameters,
-                    // method: whatToShowValue,
-                    // tbar: toolbar
+                    parameters: parameters,
+                    method: whatToShowValue,
+                    tbar: toolbar
                 });
             };
-            console.log('just before chart is added to panel');
+            //console.log("tbar",chart);
+
             panel.insert(position, chart);
+            //console.log(panel.items);
         },
         failure: function(response) {
             if (response.text) {
@@ -286,6 +149,7 @@ function addChartToPanel(whatToShowValue, parameters, position) {
             } else {
                 Ext.Msg.alert('Failed to connect to webservice.');
             }
+
         }
     });
 
@@ -391,6 +255,7 @@ function addChartToPanel(whatToShowValue, parameters, position) {
 
                     var startDate = item.record.data.startDate;
                     var endDate = item.record.data.endDate;
+                    // console.log(item.record.data);
                     addChartToPanel('GetCompletedTypeAllocationOverTime', 'parameters=' +
                         'maxResult=' + 7 +
                         '|startDate=' + startDate +
@@ -404,15 +269,9 @@ function addChartToPanel(whatToShowValue, parameters, position) {
         return listeners;
     }
 
-    function getTbar(whatToShowValue, parameters) {
-        var maxResult   = parameters['maxResult'], 
-        startDate       = parameters['startDate'], 
-        endDate         = parameters['endDate'], 
-        seriesType      = parameters['seriesType'],  
-        jobChainId      = parameters['jobChainId'], 
-        intervalType    = parameters['intervalType'], 
-        itemId          = parameters['itemId'];
-
+    function getTbar(whatToShowValue) {
+        /* switch(whatToShowValue)
+             case 'GetCompletedTypeAllocationOverTime':*/
         var tbar = {
             scrollable: true,
             items: []
@@ -424,31 +283,27 @@ function addChartToPanel(whatToShowValue, parameters, position) {
                 xtype: 'button',
                 text: 'Choose chart type',
                 menu: {
-                    reference: 'chartTypeMenu',
                     items: [{
                         text: 'Line',
-                        seriesType: 'line',
-                        checked: false,
-                        group: 'chartType' + groupCounter
+                        id: 'line',
+                        checked: true,
+                        group: 'chartType',
+                        checkHandler: 'onChartTypeCheck'
                     }, {
                         text: 'Bar',
-                        seriesType: 'bar',
+                        id: 'bar',
                         checked: false,
-                        group: 'chartType' + groupCounter
+                        group: 'chartType',
+                        checkHandler: 'onChartTypeCheck'
                     }, {
                         text: 'Pie',
-                        seriesType: 'pie',
+                        id: 'pie',
                         checked: false,
-                        group: 'chartType' + groupCounter
+                        group: 'chartType',
+                        checkHandler: 'onChartTypeCheck'
                     }]
+
                 }
-            };
-            groupCounter++;
-            for (var i = 0; i < seriesTypeMenu.menu.items.length; i++) {
-                if (seriesTypeMenu.menu.items[i].seriesType == seriesType) {
-                    seriesTypeMenu.menu.items[i].checked = true;
-                    break;
-                };
             };
             tbar.items.push(seriesTypeMenu);
         };
@@ -458,73 +313,73 @@ function addChartToPanel(whatToShowValue, parameters, position) {
             var maxResultTextField = {
                 xtype: 'textfield',
                 fieldLabel: 'Max results',
-                reference: 'maxResultTextField',
-                value: maxResult//,
+                reference: 'maxResultTextField'//,
                 //maxWidth: '100',
                 //labelWidth: '40'
             };
             tbar.items.push(maxResultTextField);
+            console.log(tbar.items);
+
         };
 
         //Time interval (Day, week, month)
         if (whatToShowValue === 'GetCompletedTypeAllocationOverTime') {
-
             var timeIntervalCombo = {
-                
-                xtype: 'button',
-                text: 'Data granularity',
-                menu: {
-                    reference: 'intervalMenu',
-                    items: [{
-                        text: 'Day',
-                        interval: 'day',
-                        checked: false,
-                        group: 'interval' + groupCounter
-                    }, {
-                        text: 'Week',
-                        interval: 'week',
-                        checked: false,
-                        group: 'interval' + groupCounter
-                    }, {
-                        text: 'Month',
-                        interval: 'month',
-                        checked: false,
-                        group: 'interval' + groupCounter
-                    }]
-                }
+                xtype: 'menu',
+                text: 'Time interval',
+                items: [{
+                    xtype: 'combo',
+                    forceSelection: true,
+                    emptyText: 'Select interval',
+                    bodyPadding: 2,
+                    store: intertalTypes,
+                    displayField: 'show',
+                    valueField: 'abbr',
+                    reference: 'intervalCombo',
+                    width: 200
+                }]
             }
-            groupCounter++;
-            for (var i = 0; i < timeIntervalCombo.menu.items.length; i++) {
-                if (timeIntervalCombo.menu.items[i].interval == parameters['intervalType']) {
-                    timeIntervalCombo.menu.items[i].checked = true;
-                    break;
-                };
-            };
             tbar.items.push(timeIntervalCombo);
         }
 
-        //Item ID
+        //Video ID
         if (whatToShowValue === 'GetHitsPerMilestone' || whatToShowValue === 'GetDropoutsPerMilestone') {
-            var ItemIdAlt = {
-                xtype: 'textfield',
-                fieldLabel: 'Item ID',
-                reference: 'itemIdTextField',
-                value: itemId
+            var videoId = {
+                xtype: 'combo',
+                forceSelection: true,
+                emptyText: 'Select video',
+                bodyPadding: 2,
+                store: videos,
+                displayField: 'show',
+                valueField: 'abbr',
+                reference: 'videosCombo',
+                width: 200
             }
-            tbar.items.push(ItemIdAlt);
+            tbar.items.push(videoId);
         };
 
-        // //Job chain ID
-        // if (whatToShowValue === 'GetTimeSpentPerJob') {
-        //     var jobChainIdTextField = {
-        //         xtype: 'textfield',
-        //         fieldLabel: 'Job chain ID',
-        //         reference: 'jobChainIdTextField',
-        //         value: jobChainId
-        //     }
-        //     tbar.items.push(jobChainIdTextField);
-        // }
-        // console.log("jobcahin id", jobChainId);
+        //Job chain ID
+        if (whatToShowValue === 'GetTimeSpentPerJob') {
+            var jobChainId = {
+                xtype: 'textfield',
+                fieldLabel: 'Job chain ID',
+                reference: 'jobChainIdTextField'
+            }
+            tbar.items.push(jobChainId);
+        }
+
+        //Save chart as image
+        var saveChartButton = {
+            xtype: 'button',
+            text: 'Save chart to PNG',
+            region: 'east',
+            handler: function(btn) {
+                btn.up('panel').download({
+                    format: 'png'
+                });
+            }
+        }
+        tbar.items.push(saveChartButton);
 
         //Timespan
         var timeToChoose = {
@@ -538,16 +393,12 @@ function addChartToPanel(whatToShowValue, parameters, position) {
                             xtype: 'combo',
                             forceSelection: true,
                             emptyText: 'Select date',
-                            multiSelect: false,
                             bodyPadding: 2,
                             store: datesForCombo,
                             displayField: 'show',
                             valueField: 'abbr',
                             reference: 'datesCombo',
-                            width: 200,
-                            listeners: {
-                                select: 'selectionChanged'
-                            }
+                            width: 200
                         }
                     }
                 }, '-', {
@@ -557,10 +408,8 @@ function addChartToPanel(whatToShowValue, parameters, position) {
                             xtype: 'datepicker',
                             reference: 'startDatepicker',
                             maxDate: new Date(),
-                            listeners: {
-                                added: function(datepicker, container, pos, eOpts){
-                                    datepicker.setValue(new Date(parameters['startDate']));
-                                }
+                            handler: function(picker, date) {
+                                globalStartDate = new Date(date.setDate(date.getDate() + 1)).toJSON().split('T')[0];
                             }
                         }
                     }
@@ -571,12 +420,8 @@ function addChartToPanel(whatToShowValue, parameters, position) {
                             xtype: 'datepicker',
                             reference: 'endDatepicker',
                             maxDate: new Date(),
-                            listeners: {
-                                added: function(datepicker, container, pos, eOpts){
-                                    datepicker.setValue(new Date(parameters['endDate']));
-                                    datepicker.up();
-                                },
-                                select: 'endDateSelected'
+                            handler: function(picker, date) {
+                                globalEndDate = new Date(date.setDate(date.getDate() + 1)).toJSON().split('T')[0];
                             }
                         }
                     }
@@ -595,19 +440,6 @@ function addChartToPanel(whatToShowValue, parameters, position) {
         }
         tbar.items.push(removeButton);
 
-        //Save chart as image
-        var saveChartButton = {
-            xtype: 'button',
-            text: 'Save chart to PNG',
-            region: 'east',
-            handler: function(btn) {
-                btn.up('panel').download({
-                    format: 'png'
-                });
-            }
-        }
-        tbar.items.push(saveChartButton);
-
         //Update
         var updateButton = {
             xtype: 'button',
@@ -615,17 +447,15 @@ function addChartToPanel(whatToShowValue, parameters, position) {
             handler: 'updateChart'
         }
         tbar.items.push(updateButton);
-        console.log('just before return of tbar');
+
         return tbar;
     }
 }
 
-// xtype: 'combo',
-                        // forceSelection: true,
-                        // emptyText: 'Select interval',
-                        // bodyPadding: 2,
-                        // store: intertalTypes,
-                        // displayField: 'show',
-                        // valueField: 'abbr',
-                        // reference: 'intervalCombo',
-                        // width: 200
+
+
+
+// handler: function() {
+//     var me = this;
+//     updateChart(me, 'pie');
+// }
