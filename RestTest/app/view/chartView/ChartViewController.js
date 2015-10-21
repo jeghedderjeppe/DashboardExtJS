@@ -14,85 +14,7 @@ Ext.define('RestTest.view.chartView.ChartViewController', {
         'Ext.chart.series.Line',
         'Ext.chart.series.Bar'
     ],
-    updateChart: function(button) {
-        var toolbar = button.up();
-        var chart = toolbar.up();
-
-        //Set Max Result
-        var maxResultTextField = this.lookupReference('maxResultTextField');
-        var maxResult;
-        if (maxResultTextField == null)
-            maxResult = 999;
-        else
-            maxResult = maxResultTextField.getValue();
-
-        //Set Job Chain Id
-        var jobChainIdTextField = this.lookupReference('jobChainIdTextField');
-        var jobChainId;
-        if (jobChainIdTextField == null)
-            jobChainId = 50974;
-        else
-            jobChainId = jobChainIdTextField.getValue();
-
-        //Set ItemId
-        var itemIdTextField = this.lookupReference('itemIdTextField');
-        var itemId;
-        if (itemIdTextField == null)
-            itemId = 50974;
-        else
-            itemId = itemIdTextField.getValue();
-        
-        //Set seriesType
-        var chosenSeriesType = 'line';
-        chartTypeMenu = this.lookupReference('chartTypeMenu');
-        if (chartTypeMenu != null) {
-            var chartTypeButtons = chartTypeMenu.items.items;
-            for (var i = 0; i < chartTypeButtons.length; i++)
-                if (chartTypeButtons[i].checked === true)
-                    chosenSeriesType = chartTypeButtons[i].seriesType;
-        };
-
-        //Set Interval
-        var chosenInterval = 'month';
-        intervalMenu = this.lookupReference('intervalMenu');
-        if (intervalMenu != null) {
-            var intervalButtons = intervalMenu.items.items;
-            for (var i = 0; i < intervalButtons.length; i++)
-                if (intervalButtons[i].checked === true)
-                    chosenInterval = intervalButtons[i].interval;
-        };
-
-        //Add to parameters
-        var parameters = chart.parameters;
-        parameters = parseParamsToArray(chart.parameters);
-        parameters['seriesType'] = chosenSeriesType;
-        if (parseInt(maxResult) > 0)
-            parameters['maxResult'] = maxResult;
-        parameters['intervalType'] = chosenInterval;
-
-        var startDateComponent = this.lookupReference('startDatepicker');
-        var endDateComponent = this.lookupReference('endDatepicker');
-        if (startDateComponent != null || endDateComponent != null) {
-            parameters['startDate'] = startDateComponent.getValue().toJSON();
-            parameters['endDate'] = endDateComponent.getValue().toJSON();
-        };
-
-        if (parseInt(jobChainId) > 0)
-            parameters['jobChainId'] = jobChainId;
-        if (parseInt(itemId) > 0)
-            parameters['itemId'] = itemId;
-
-        parameters = this.serializeParams(parameters);
-
-        var panel = chart.up('panel');
-        var items = panel.items.items;
-        var itemsArray = [];
-        for (var i in items) 
-            itemsArray.push(items[i].id);
-        var positionInPanel = itemsArray.indexOf(chart.id); //Kunne gøres bedre
-        addChartToPanel(chart.method, parameters, positionInPanel, chart);
-    },
-
+   
     serializeParams: function(params) {
         var paramsSerialized = 'parameters=';
         for (var i in params) 
@@ -103,16 +25,36 @@ Ext.define('RestTest.view.chartView.ChartViewController', {
     },
 
     removeButtonClick: function(button) {
-        var chart = button.up().up();
+        var chart = this.getChart(button);
         chart.destroy();
     },
 
-    selectionChanged: function(combo, record, eOpts){
-        choseTimePeriod = combo.getValue();
 
-        var startDate = getDatetime(choseTimePeriod);
+
+    addedStartDate: function(datepicker, container, pos, eOpts){
+        var date = new Date();
+        date.setMonth(date.getMonth() - 1);
+        datepicker.setValue(new Date(date));
+    },
+
+    chartTypeMenucheckItemClick: function(menu, item, e, eOpts){
+        var chart = this.getChart(menu);
+        var panel = chart.up('panel');
+        var items = panel.items.items;
+        var itemsArray = [];
+        for (var i in items) 
+            itemsArray.push(items[i].id);
+        var positionInPanel = itemsArray.indexOf(chart.id); //Kunne gøres bedre
+        var parameters = parseParamsToArray(chart.parameters)
+        parameters['seriesType'] = item.seriesType;
+        parameters = this.serializeParams(parameters);
+        addChartToPanel(chart.method, parameters, positionInPanel, chart);
+    },
+
+    timespanMenucheckItemClick: function(menu, item, e, eOpts){
+        chosenTimePeriod = item.abbr;
+        var startDate = getDatetime(chosenTimePeriod);
         var endDate = new Date();
-
         this.lookupReference('startDatepicker').setValue(startDate);
         this.lookupReference('endDatepicker').setValue(endDate);
         function getDatetime(valueFromDatesCombo) {
@@ -156,50 +98,93 @@ Ext.define('RestTest.view.chartView.ChartViewController', {
             }
             return new Date(date);
         }
+
+        var chart = this.getChart(item);
+        var keyValues = { 
+            'startDate': startDate.toJSON(), 
+            'endDate':endDate.toJSON()
+        };
+        this.ajaxUpdate(chart, keyValues); //this.ajaxUpdate(chart, method, parameters);      
     },
 
-    addedStartDate: function(datepicker, container, pos, eOpts){
-        var date = new Date();
-        date.setMonth(date.getMonth() - 1);
-        datepicker.setValue(new Date(date));
+    dataGranularityMenuItemClick: function(menu, item, e, eOpts) {
+        var chart = this.getChart(menu);
+        var panel = chart.up('panel');
+        var panelItems = panel.items.items;
+        var positionInPanel;
+        for (var i; i<panelItems.length; i++){
+            if (panelItems[i].id == chart.id) {
+                positionInPanel = i;
+                break;
+            }
+        }
+        var parameters = parseParamsToArray(chart.parameters)
+        parameters['intervalType'] = item.interval;
+        parameters = this.serializeParams(parameters);
+        addChartToPanel(chart.method, parameters, positionInPanel, chart);
+    },
+
+    startDateSelected: function(datepicker, selectedDate, eOpts){
+        var chart = this.getChart(datepicker);
+        var keyValues = { 'startDate': selectedDate.toJSON() };
+        this.ajaxUpdate(chart, keyValues);
     },
     
     endDateSelected: function(datepicker, selectedDate, eOpts){
+        var chart = this.getChart(datepicker);
+        var keyValues = { 'endDate': selectedDate.toJSON() };
+        this.ajaxUpdate(chart, keyValues);
+
         var startDatepicker = this.lookupReference('startDatepicker');
         startDatepicker.maxDate = new Date(selectedDate);
         startDateValue = startDatepicker.getValue();
-        if (startDateValue > selectedDate) {
-
+        if (startDateValue > selectedDate) 
             startDatepicker.setValue(selectedDate);
-        };        
     },
 
-    maxResultChange: function(textfield, newValue, oldValue, eOpts){
-        var chart = textfield.up().up().up().up();
-        var method = chart.method;
-        var parameters = parseParamsToArray(chart.parameters);
-        parameters['maxResult'] = newValue;
-        parameters = this.serializeParams(parameters);
-        Ext.Ajax.request({
-        url: 'http://localhost:49879/SendStatistics.svc/rest/getrequest?method=' + method + '&' + parameters, //getpageviewsbybrowser
-        method: 'GET',
-        disableCaching: true,
-        headers: {
-            accept: 'application/json; charset=utf-8'
-        },
-        useDefaultXhrHeader: false,
+    maxResultChange: function(textfield, newValue, oldValue, eOpts) {
+        var chart = this.getChart(textfield);
+        var keyValues = { 'maxResult': newValue };
+        this.ajaxUpdate(chart, keyValues);
+    },
 
-        success: function(response) {
-            var dataFromWcf = Ext.JSON.decode(response.responseText);
-            chart.setStore(Ext.create('Ext.data.Store', {
-                data: dataFromWcf.KeyValues
-            }));
-            chart.redraw();
-        },
-        failure: function(response) {
-            
-        }
-    });
+    getChart: function(component){
+        var chart = component.up('cartesian');
+        if (chart == undefined) 
+            chart = component.up('polar');
+        return chart;
+    },
+
+    ajaxUpdate: function(chart, keyValues) {
+        var method = chart.method;
+
+        var parameters = parseParamsToArray(chart.parameters);
+        for(var keyValue in keyValues)
+            parameters[keyValue] = keyValues[keyValue];      
+        parameters = this.serializeParams(parameters);
+
+        Ext.Ajax.request({
+            url: 'http://localhost:49879/SendStatistics.svc/rest/getrequest?method=' + method + '&' + parameters, //getpageviewsbybrowser
+            method: 'GET',
+            disableCaching: true,
+            headers: {
+                accept: 'application/json; charset=utf-8'
+            },
+            useDefaultXhrHeader: false,
+            success: function(response) {
+                var dataFromWcf = Ext.JSON.decode(response.responseText);
+                if (method === 'GetCompletedTypeAllocationOverTime')
+                    dataFromWcf.KeyValues = Ext.JSON.decode(dataFromWcf.KeyValues[0]);
+                chart.setStore(Ext.create('Ext.data.Store', {
+                    data: dataFromWcf.KeyValues
+                }));
+                chart.redraw();
+                chart.parameters = parameters;
+            },
+            failure: function(response) {
+                Ext.Msg.Alert(parameters + " is not valid input");
+            }
+        });
     }
 });
 
@@ -213,7 +198,7 @@ function parseParamsToArray(parameters) {
     }    
     return paramsObj;
 };
-
+var firstChart;
 var groupCounter = 0;
 function addChartToPanel(whatToShowValue, parameters, position, chartToBeDestroyed) {
     var panel = me.lookupReference('outputPanel');
@@ -253,10 +238,10 @@ function addChartToPanel(whatToShowValue, parameters, position, chartToBeDestroy
             } catch (e) {
                 Ext.Msg.alert('Alert!', responseText);
             }
+            console.log(groupCounter, dataFromWcf);
             var store = Ext.create('Ext.data.Store', {
                 data: dataFromWcf.KeyValues
             });
-            console.log(1, parameters);
             if (parameters !== undefined) 
                 parsedParameters = parseParamsToArray(parameters);
             var axes = getAxis(dataFromWcf);
@@ -287,6 +272,8 @@ function addChartToPanel(whatToShowValue, parameters, position, chartToBeDestroy
                     tbar: toolbar
                 });
             };
+
+            firstChart = chart;
             panel.insert(position, chart);
             if (chartToBeDestroyed) 
                 chartToBeDestroyed.destroy();
@@ -461,7 +448,11 @@ function addChartToPanel(whatToShowValue, parameters, position, chartToBeDestroy
                         seriesType: 'pie',
                         checked: false,
                         group: 'chartType' + groupCounter
-                    }]
+                    }],
+                    listeners: {
+                        click: 'chartTypeMenucheckItemClick'
+                    }
+
                 }
             };
             groupCounter++;
@@ -481,6 +472,7 @@ function addChartToPanel(whatToShowValue, parameters, position, chartToBeDestroy
                 fieldLabel: 'Max results',
                 reference: 'maxResultTextField',
                 value: maxResult,
+                maskRe: /[0-9.]/,
                 listeners: {
                     change: 'maxResultChange'
                 }
@@ -490,9 +482,7 @@ function addChartToPanel(whatToShowValue, parameters, position, chartToBeDestroy
 
         //Time interval (Day, week, month)
         if (whatToShowValue === 'GetCompletedTypeAllocationOverTime') {
-
             var timeIntervalCombo = {
-                
                 xtype: 'button',
                 text: 'Data granularity',
                 menu: {
@@ -512,7 +502,9 @@ function addChartToPanel(whatToShowValue, parameters, position, chartToBeDestroy
                         interval: 'month',
                         checked: false,
                         group: 'interval' + groupCounter
-                    }]
+                    }], listeners:{
+                        click: 'dataGranularityMenuItemClick'
+                    }
                 }
             }
             groupCounter++;
@@ -546,7 +538,32 @@ function addChartToPanel(whatToShowValue, parameters, position, chartToBeDestroy
         //     }
         //     tbar.items.push(jobChainIdTextField);
         // }
-        // console.log("jobcahin id", jobChainId);
+        var datesForTimespanArray = [
+            ['Today',       'zeroDay'    ],
+            ['Yesterday',   'oneDay'     ],
+            ['3 Days',      'threeDay'   ],
+            ['1 week',      'oneWeek'    ],
+            ['2 weeks',     'twoWeek'    ],
+            ['3 weeks',     'threeWeek'  ],
+            ['4 weeks',     'fourWeek'   ],
+            ['1 month',     'oneMonth'   ],
+            ['2 month',     'twoMonth'   ],
+            
+            ['3 month',     'threeMonth' ],
+            ['4 month',     'fourMonth'  ]
+        ];
+
+        var checklistItemsForTimespan = [];
+        for (var i = 0; i < datesForTimespanArray.length; i++) {
+            var item = {
+                xtype: 'menucheckitem',
+                text: datesForTimespanArray[i][0],
+                abbr: datesForTimespanArray[i][1],
+                checked: false,
+                group: 'datesPeriodSelection' + groupCounter
+            }
+            checklistItemsForTimespan.push(item);
+        };
 
         //Timespan
         if (whatToShowValue !== 'GetTimeSpentPerJob') {
@@ -556,21 +573,10 @@ function addChartToPanel(whatToShowValue, parameters, position, chartToBeDestroy
                 menu: {
                     items: [{
                         text: 'Pick a timespan',
-                        menu: {
-                            items: {
-                                xtype: 'combo',
-                                forceSelection: true,
-                                emptyText: 'Select date',
-                                multiSelect: false,
-                                bodyPadding: 2,
-                                store: datesForCombo,
-                                displayField: 'show',
-                                valueField: 'abbr',
-                                reference: 'datesCombo',
-                                width: 200,
-                                listeners: {
-                                    select: 'selectionChanged'
-                                }
+                        menu: { 
+                            items: checklistItemsForTimespan,
+                            listeners: {
+                                click: 'timespanMenucheckItemClick'
                             }
                         }
                     }, '-', {
@@ -623,23 +629,15 @@ function addChartToPanel(whatToShowValue, parameters, position, chartToBeDestroy
         //Save chart as image
         var saveChartButton = {
             xtype: 'button',
-            text: 'Save chart to PNG',
+            text: 'Downloadable version',
             region: 'east',
             handler: function(btn) {
                 btn.up().up().preview();
             }
         }
-        tbar.menu.items.push(saveChartButton);
+        returnTbar.items.push(saveChartButton);
 
-        //Update
-        var updateButton = {
-            xtype: 'button',
-            text: 'Update',
-            handler: 'updateChart'
-        }
-        returnTbar.items.push(updateButton);
-
-        console.log(tbar);
+  
         return returnTbar;
     }
 }
@@ -653,3 +651,89 @@ function addChartToPanel(whatToShowValue, parameters, position, chartToBeDestroy
                         // valueField: 'abbr',
                         // reference: 'intervalCombo',
                         // width: 200
+
+      //Update
+        // var updateButton = {
+        //     xtype: 'button',
+        //     text: 'Update',
+        //     handler: 'updateChart'
+        // }
+        // returnTbar.items.push(updateButton);
+
+ // updateChart: function(button) {
+    //     var chart = this.getChart(button);
+
+    //     //Set Max Result
+    //     var maxResultTextField = this.lookupReference('maxResultTextField');
+    //     var maxResult;
+    //     if (maxResultTextField == null)
+    //         maxResult = 999;
+    //     else
+    //         maxResult = maxResultTextField.getValue();
+
+    //     //Set Job Chain Id
+    //     var jobChainIdTextField = this.lookupReference('jobChainIdTextField');
+    //     var jobChainId;
+    //     if (jobChainIdTextField == null)
+    //         jobChainId = 50974;
+    //     else
+    //         jobChainId = jobChainIdTextField.getValue();
+
+    //     //Set ItemId
+    //     var itemIdTextField = this.lookupReference('itemIdTextField');
+    //     var itemId;
+    //     if (itemIdTextField == null)
+    //         itemId = 50974;
+    //     else
+    //         itemId = itemIdTextField.getValue();
+        
+    //     //Set seriesType
+    //     var chosenSeriesType = 'line';
+    //     chartTypeMenu = this.lookupReference('chartTypeMenu');
+    //     if (chartTypeMenu != null) {
+    //         var chartTypeButtons = chartTypeMenu.items.items;
+    //         for (var i = 0; i < chartTypeButtons.length; i++)
+    //             if (chartTypeButtons[i].checked === true)
+    //                 chosenSeriesType = chartTypeButtons[i].seriesType;
+    //     };
+
+    //     //Set Interval
+    //     var chosenInterval = 'month';
+    //     intervalMenu = this.lookupReference('intervalMenu');
+    //     if (intervalMenu != null) {
+    //         var intervalButtons = intervalMenu.items.items;
+    //         for (var i = 0; i < intervalButtons.length; i++)
+    //             if (intervalButtons[i].checked === true)
+    //                 chosenInterval = intervalButtons[i].interval;
+    //     };
+
+    //     //Add to parameters
+    //     var parameters = chart.parameters;
+    //     parameters = parseParamsToArray(chart.parameters);
+    //     parameters['seriesType'] = chosenSeriesType;
+    //     if (parseInt(maxResult) > 0)
+    //         parameters['maxResult'] = maxResult;
+    //     parameters['intervalType'] = chosenInterval;
+
+    //     var startDateComponent = this.lookupReference('startDatepicker');
+    //     var endDateComponent = this.lookupReference('endDatepicker');
+    //     if (startDateComponent != null || endDateComponent != null) {
+    //         parameters['startDate'] = startDateComponent.getValue().toJSON();
+    //         parameters['endDate'] = endDateComponent.getValue().toJSON();
+    //     };
+
+    //     if (parseInt(jobChainId) > 0)
+    //         parameters['jobChainId'] = jobChainId;
+    //     if (parseInt(itemId) > 0)
+    //         parameters['itemId'] = itemId;
+
+    //     parameters = this.serializeParams(parameters);
+
+    //     var panel = chart.up('panel');
+    //     var items = panel.items.items;
+    //     var itemsArray = [];
+    //     for (var i in items) 
+    //         itemsArray.push(items[i].id);
+    //     var positionInPanel = itemsArray.indexOf(chart.id); //Kunne gøres bedre
+    //     addChartToPanel(chart.method, parameters, positionInPanel, chart);
+    // },
